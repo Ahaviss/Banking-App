@@ -1,0 +1,48 @@
+# Banking App - Ahaviss
+
+A comprehensive Command Line Interface (CLI) banking system designed with a focus on **Defensive Programming** and **Object-Oriented Design**. This project simulates a professional financial environment with tiered access and secure transaction logic.
+
+---
+
+## 🚀 Project Overview
+
+This project is a multi-layered banking application that manages complex financial operations. It features a robust role hierarchy, extensive input validation, and a modular architecture spread across multiple packages.
+
+### Key Features
+* **Role Hierarchy & Permissions:**
+    * **User:** Standard operations (Withdraw, Deposit, Transfers).
+    * **Admin:** System oversight; can edit account details and view metadata.
+    * **Owner:** Superuser status; full authority to add, edit, and delete accounts.
+* **Core Functions:** * Secure internal transfers between accounts.
+    * Real-time balance updates and transaction logging.
+    * Account status management (e.g., `ACTIVE` vs. `LOCKED`).
+* **Input Validation:** Use of **Regular Expressions (Regex)** and conditional logic to prevent malformed data and system crashes.
+
+---
+
+## 🛠 Technical Implementation
+
+This project serves as a practical application of advanced Java concepts:
+
+* **OOP Principles:** Demonstrates **Composition**, **Encapsulation**, and **Object Identity**.
+* **Generics:** Implemented for flexible data handling and storage.
+* **Scale:** Consists of **~1,050 lines of code** (excluding comments) organized into a clean, multi-package structure.
+* **Defensive Coding:** Heavy emphasis on preventing `Exceptions` through proactive data checking.
+
+---
+
+## 💻 Getting Started
+
+### Prerequisites
+* **Java Development Kit (JDK) 23** (recommended for compatibility).
+* An IDE such as **IntelliJ IDEA**.
+
+### How to Run
+Because the project uses a multi-package structure, running it via an IDE is the most straightforward method:
+
+1. Clone the repository or download the source code.
+2. Open the project folder in **IntelliJ IDEA**.
+3. Navigate to the `Main.java` file and click **Run**.
+
+---
+*Developed by Ahaviss - 2026*
