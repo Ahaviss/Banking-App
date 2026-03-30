@@ -6,7 +6,7 @@ A comprehensive Command Line Interface (CLI) banking system designed with a focu
 
 ## 🚀 Project Overview
 
-**Ahaviss** is a multi-layered banking application that manages complex financial operations. It features a robust role hierarchy, extensive input validation, and a modular architecture spread across multiple packages.
+This project is a multi-layered banking application that manages complex financial operations. It features a robust role hierarchy, extensive input validation, and a modular architecture spread across multiple packages.
 
 ### Key Features
 * **Role Hierarchy & Permissions:**
