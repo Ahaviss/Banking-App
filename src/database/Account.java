@@ -1,5 +1,7 @@
 package database;
+//Java imports
 import java.util.ArrayList;
+//Local imports
 import enums.AccountStatus;
 public class Account {
     //Private fields

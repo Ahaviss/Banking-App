@@ -1,8 +1,10 @@
 package logic;
+//Local imports
 import database.Admin;
 import enums.AccountStatus;
 import utilities.ProjectUtils;
 import database.Account;
+//Java imports
 import java.util.ArrayList;
 public class LoginSystem {
     //Index for account login

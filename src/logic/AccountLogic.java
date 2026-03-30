@@ -1,9 +1,10 @@
 package logic;
-
+//Java imports
 import database.*;
 import enums.AccountStatus;
 import main.Main;
 import utilities.ProjectUtils;
+//Local imports
 import java.util.Random;
 import java.util.ArrayList;
 

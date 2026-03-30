@@ -1,6 +1,8 @@
 package logic;
+//Local imports
 import database.*;
 import utilities.ProjectUtils;
+//Java imports
 import java.util.Random;
 import java.util.ArrayList;
 public class AdminLogic {
