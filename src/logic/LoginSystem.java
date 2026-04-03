@@ -12,17 +12,11 @@ public class LoginSystem {
     //Returns the index
     public static int getIndex() {int tempIndex = index; index = 0; return tempIndex;}
     //Total tries
-    public static int tries = 0;
     public static int accountLogin (ArrayList<Account> accounts) {
         //Arrays to track if the same username is targeted multiple times
         int[] foundUsernames = new int[3];
         int[] indexes = new int[3];
         for (int i = 0; i < 3; i++) {
-            //If the tries exceed the limit
-            if (tries == 5) {
-                System.out.println("Attempts have reached or exceeded the limit.");
-                System.exit(0);
-            }
             System.out.printf("Login attempt %d/3%n", i + 1);
             //Gets the account ID and password
             String tempAccountId = ProjectUtils.getValidString("Enter your account ID: ");
@@ -31,7 +25,6 @@ public class LoginSystem {
             boolean isNumber = tempAccountId.matches("\\d+");
             if (!isNumber) {
                 System.out.println("Invalid admin ID. Please enter a valid admin ID.");
-                tries++;
                 continue;
             }
             //Parses the ID to an integer
@@ -42,10 +35,8 @@ public class LoginSystem {
                     //Checks if the account is locked if the above is true
                     if (accounts.get(j).getAccountStatus() == AccountStatus.LOCKED) {
                         System.out.println("Account is locked. Please contact the bank for assistance.");
-                        tries++;
                         return -3;
                     }
-                    tries = 0;
                     //Otherwise, return the index
                     return j;
                 }
@@ -55,7 +46,6 @@ public class LoginSystem {
                     indexes[i] = j;
                 }
             }
-            tries++;
             System.out.println("Invalid account ID or password. Please try again.");
         }
         //If attempts are exceeded
