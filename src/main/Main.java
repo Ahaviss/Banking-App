@@ -306,13 +306,13 @@ public class Main {
         boolean quit = true;
         while (quit) {
             try {
-                String option = ProjectUtils.getValidString("Add Admin, Delete Admin, Edit Admin, Logout, Quit Owner Panel, Quit Program");
+                String option = ProjectUtils.getValidString("Add Admins, Delete Admins, Edit Admins, Logout, Quit Owner Panel, Quit Program");
                 switch (option.toLowerCase()) {
-                    case "add admin":
+                    case "add admins":
                         //Calls addAdmin method
                         admins = AdminLogic.addAdmins(admins);
                         break;
-                    case "delete admin":
+                    case "delete admins":
                         //Calls deleteAdmin method
                         ArrayList<Admin> tempAdmins = AdminLogic.deleteAdmins(admins);
                         if (tempAdmins != null) {
@@ -320,7 +320,7 @@ public class Main {
                             admins = tempAdmins;
                         }
                         break;
-                    case "edit admin":
+                    case "edit admins":
                         //Calls editAdmin method
                         editAdmin();
                         break;
@@ -368,7 +368,7 @@ public class Main {
             }
             //General admin panel option
             else {
-                option = ProjectUtils.getValidString("Add Account, Delete Account, Edit account, Logout, Quit program");
+                option = ProjectUtils.getValidString("Add Accounts, Delete Accounts, Edit accounts, Logout, Quit program");
             }
             switch (option.toLowerCase()) {
                 case "add accounts":
@@ -399,7 +399,7 @@ public class Main {
                     System.exit(0);
                     break;
                 default:
-                    //Access the owner panel option only if the role is owner
+                    //Access the owner panel option only if the role is the owner
                     if (option.equalsIgnoreCase("owner panel") && role == LoginEnums.OWNER) {
                         ownerPanel();
                         continue;
