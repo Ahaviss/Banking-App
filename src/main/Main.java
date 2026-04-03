@@ -364,7 +364,7 @@ public class Main {
             String option;
             //Owner panel option for the owner
             if (role == LoginEnums.OWNER) {
-                option = ProjectUtils.getValidString("Add Account, Delete Account, Edit account, Logout, Owner Panel, Quit program");
+                option = ProjectUtils.getValidString("Add Accounts, Delete Accounts, Edit accounts, Logout, Owner Panel, Quit program");
             }
             //General admin panel option
             else {
