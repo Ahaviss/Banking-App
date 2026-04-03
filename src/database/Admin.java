@@ -2,7 +2,7 @@ package database;
 
 public class Admin {
     //Private fields
-    private int adminId;
+    private final int adminId;
     private String adminName;
     private String adminPassword;
     //Constructor for object creation

@@ -3,7 +3,7 @@ package utilities;
 import java.util.ArrayList;
 import java.util.Scanner;
 public class ProjectUtils {
-    private static Scanner scanner = new Scanner(System.in);
+    private static final Scanner scanner = new Scanner(System.in);
     public static int getValidInt (String prompt) {
         while (true) {
             try {
@@ -22,6 +22,18 @@ public class ProjectUtils {
                 System.out.println("Invalid input. Please enter a valid integer.");
             } catch (Exception e) {
                 System.out.printf("An unexpected error occurred: %s%n", e.getMessage());
+            }
+        }
+    }
+    public static boolean askToContinue () {
+        while (true) {
+            String answer = ProjectUtils.getValidString("Would you like to continue? (Y/N)");
+            if (answer.equalsIgnoreCase("Y")) {
+                return true;
+            } else if (answer.equalsIgnoreCase("N")) {
+                return false;
+            } else {
+                System.out.println("Invalid input. Please enter Y or N.");
             }
         }
     }

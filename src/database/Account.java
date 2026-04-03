@@ -5,16 +5,16 @@ import java.util.ArrayList;
 import enums.AccountStatus;
 public class Account {
     //Private fields
-    private int accountId;
+    private final int accountId;
     private String accountHolder;
     private double balance;
     private String accountPassword;
     private AccountStatus accountStatus;
     private int creditScore;
     //ArrayLists for deposit, withdraw, and transfer history
-    private ArrayList<Deposit> deposits = new ArrayList<>();
-    private ArrayList<Withdraw> withdraws = new ArrayList<>();
-    private ArrayList<Transfer> transfers = new ArrayList<>();
+    private final ArrayList<Deposit> deposits = new ArrayList<>();
+    private final ArrayList<Withdraw> withdraws = new ArrayList<>();
+    private final ArrayList<Transfer> transfers = new ArrayList<>();
     //Constructor for object creation
     public Account(int accountId, String accountHolder, double balance, String accountPassword, AccountStatus accountStatus, int creditScore) {
         this.accountId = accountId;
@@ -42,7 +42,6 @@ public class Account {
     public double getBalance() {return balance;}
     public void setBalance(double balance) {this.balance = balance;}
     public void setAccountHolder(String accountHolder) {this.accountHolder = accountHolder;}
-    public void setAccountId(int accountId) {this.accountId = accountId;}
     //Prints the account logs/history
     public void printHistory () {
         System.out.println("Account History:");

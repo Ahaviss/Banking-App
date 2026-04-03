@@ -72,9 +72,9 @@ public class AdminLogic {
         admin.setAdminName(newName);
         return admin;
     }
+    //RNG for admin ID
+    private static final Random random = new Random();
     public static ArrayList<Admin> addAdmins (ArrayList<Admin> admins) {
-        //RNG for admin ID
-        Random random = new Random();
         while (true) {
             //Asks the number of admins to add
             int amountOfAdmins = ProjectUtils.getValidInt("Enter the amount of admins you want to add: ");

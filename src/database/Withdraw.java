@@ -2,8 +2,8 @@ package database;
 
 public class Withdraw {
     //Private fields
-    private double amountWithdrawn;
-    private int accountId;
+    private final double amountWithdrawn;
+    private final int accountId;
     //Constructor for object creation
     public Withdraw(double amountWithdrawn, int accountId) {
         this.amountWithdrawn = amountWithdrawn;

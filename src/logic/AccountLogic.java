@@ -2,7 +2,7 @@ package logic;
 //Java imports
 import database.*;
 import enums.AccountStatus;
-import main.Main;
+import enums.TransferDirection;
 import utilities.ProjectUtils;
 //Local imports
 import java.util.Random;
@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 public class AccountLogic {
     //RNG for account ID
-    public static Random random = new Random();
+    private static final Random random = new Random();
     public static Account withdraw (Account account) {
         while (true) {
             //Asks for the withdrawal amount
@@ -19,19 +19,19 @@ public class AccountLogic {
             if (withdrawAmount > account.getBalance()) {
                 System.out.println("Insufficient balance.");
                 //Asks to retry the withdrawal
-                if (!Main.askToContinue()) {
+                if (!ProjectUtils.askToContinue()) {
                     return account;
                 }
                 continue;
             }
-            //Sets the new balance
+            //Sets user balance
             account.setBalance(account.getBalance() - withdrawAmount);
+            //Adds the withdrawal to history
+            account.addWithdraw(new Withdraw(withdrawAmount, account.getAccountId()));
             while (true) {
                 //Asks if the user wants to make another withdrawal
                 String answer = ProjectUtils.getValidString("Withdrawal successful. Do you want to make another withdrawal? Y/N");
                 if (answer.equalsIgnoreCase("N")) {
-                    //Adds the withdrawal to history
-                    account.addWithdraw(new Withdraw(withdrawAmount, account.getAccountId()));
                     return account;
                 } else if (answer.equalsIgnoreCase("Y")) {
                     break;
@@ -46,14 +46,14 @@ public class AccountLogic {
             //Asks for the deposit amount
             double depositAmount = ProjectUtils.getValidDouble("Enter the amount you want to deposit: ");
             account.setBalance(account.getBalance() + depositAmount);
+            //Adds the deposit to history
+            account.addDeposit(new Deposit(depositAmount, account.getAccountId()));
             //Asks if the user wants to make another deposit
             while (true) {
                 String answer = ProjectUtils.getValidString("Deposit successful. Do you want to make another deposit? Y/N");
                 if (answer.equalsIgnoreCase("Y")) {
                     break;
                 } else if (answer.equalsIgnoreCase("N")) {
-                    //Adds the deposit to history
-                    account.addDeposit(new Deposit(depositAmount, account.getAccountId()));
                     return account;
                 } else {
                     System.out.println("Invalid input. Please enter Y or N.");
@@ -80,47 +80,61 @@ public class AccountLogic {
             accounts.get(sourceAccountIndex).setBalance(accounts.get(sourceAccountIndex).getBalance() - transferAmount);
             accounts.get(recipientIndex).setBalance(accounts.get(recipientIndex).getBalance() + transferAmount);
             //Adds the transfer to history
-            accounts.get(sourceAccountIndex).addTransfer(new Transfer(transferAmount, recipientAccountId, accounts.get(sourceAccountIndex).getAccountId(), "Outgoing"));
-            accounts.get(recipientIndex).addTransfer(new Transfer(transferAmount, recipientAccountId, accounts.get(sourceAccountIndex).getAccountId(), "Incoming"));
-            System.out.println("Transfer successful!");
-            return accounts;
+            accounts.get(sourceAccountIndex).addTransfer(new Transfer(transferAmount, recipientAccountId, accounts.get(sourceAccountIndex).getAccountId(), TransferDirection.OUTGOING));
+            accounts.get(recipientIndex).addTransfer(new Transfer(transferAmount, recipientAccountId, accounts.get(sourceAccountIndex).getAccountId(), TransferDirection.INCOMING));
+            while (true) {
+                String answer = ProjectUtils.getValidString("Transfer successful. Do you want to make another deposit? Y/N");
+                if (answer.equalsIgnoreCase("Y")) {
+                    break;
+                } else if (answer.equalsIgnoreCase("N")) {
+                    return accounts;
+                } else {
+                    System.out.println("Invalid input. Please enter Y or N.");
+                }
+            }
+        }
+    }
+    private static Account getAccountDetails (ArrayList<Account> accounts) {
+        while (true) {
+            //Asks for the account details
+            String name = ProjectUtils.getValidString("Enter the account holder's name: ");
+            double balance = ProjectUtils.getValidDouble("Enter the account holder's balance: ");
+            int creditScore = ProjectUtils.getValidInt("Enter the account holder's credit score");
+            //Validates the credit score
+            if (creditScore < 500 || creditScore > 800) {
+                System.out.println("Invalid credit score. Please enter a number between 500 and 800.");
+                continue;
+            }
+            //Asks for the account password
+            String accountPassword = ProjectUtils.getValidPassword("Enter the account holder's password: ");
+            //Generates a random account ID
+            int accountId = random.nextInt(9999999 - 1000000 + 1) + 1000000;
+            //Makes sure that the ID is not already taken
+            while (true) {
+                if (loopThroughAccounts(accounts, accountId) == -1) {
+                    break;
+                } else {
+                    accountId++;
+                    if (accountId > 9999999) {
+                        accountId = 1000000;
+                    }
+                }
+            }
+            //Return the created account
+            return new Account (accountId, name, balance, accountPassword, AccountStatus.ACTIVE, creditScore);
+
         }
     }
     public static ArrayList<Account> createAccount (ArrayList<Account> accounts) {
         //Asks the user for the number of accounts to add
         int amountOfAccountToAdd = ProjectUtils.getValidInt("Enter the amount of accounts you want to add: ");
+        //Gets account details
         for (int i = 0; i < amountOfAccountToAdd; i++) {
-            while (true) {
-                //Asks for the account details
-                String name = ProjectUtils.getValidString("Enter the account holder's name: ");
-                double balance = ProjectUtils.getValidDouble("Enter the account holder's balance: ");
-                int creditScore = ProjectUtils.getValidInt("Enter the account holder's credit score");
-                //Validates the credit score
-                if (creditScore < 500 || creditScore > 800) {
-                    System.out.println("Invalid credit score. Please enter a number between 500 and 800.");
-                    continue;
-                }
-                //Asks for the account password
-                String accountPassword = ProjectUtils.getValidPassword("Enter the account holder's password: ");
-                //Generates a random account ID
-                int accountId = random.nextInt(9999999 - 1000000 + 1) + 1000000;
-                //Makes sure that the ID is not already taken
-                while (true) {
-                    if (loopThroughAccounts(accounts, accountId) == -1) {
-                        break;
-                    } else {
-                        accountId++;
-                        if (accountId > 9999999) {
-                            accountId = 1000000;
-                        }
-                    }
-                }
-                //Prints the account ID and adds to the accounts list
-                System.out.println("Account ID: " + accountId);
-                accounts.add(new Account(accountId, name, balance, accountPassword, AccountStatus.ACTIVE, creditScore));
-                System.out.println("Account created successfully!");
-                break;
-            }
+            //Call getAccountDetails method
+            Account tempAccount = getAccountDetails(accounts);
+            //Print success message and student ID
+            System.out.println("Student ID: " + tempAccount.getAccountId());
+            System.out.println("Account created successfully!");
         }
         return accounts;
     }
@@ -214,10 +228,10 @@ public class AccountLogic {
         while (true) {
             try {
                 //Asks the user for the new account status and validates it
-                String status = ProjectUtils.getValidString("Enter the new account status (active/inactive): ");
+                String status = ProjectUtils.getValidString("Enter the new account status (active/locked): ");
                 if (status.equalsIgnoreCase("active")) {
                     account.setAccountStatus(AccountStatus.ACTIVE);
-                } else if (status.equalsIgnoreCase("inactive")) {
+                } else if (status.equalsIgnoreCase("locked")) {
                     account.setAccountStatus(AccountStatus.LOCKED);
                 } else {
                     System.out.println("Invalid input. Please enter 'active' or 'inactive'.");
@@ -252,34 +266,11 @@ public class AccountLogic {
     public static Account createOneAccount (ArrayList<Account> accounts) {
         while (true) {
             try {
-                //Asks the user for the account details
-                String name = ProjectUtils.getValidString("Enter the account holder's name: ");
-                double balance = ProjectUtils.getValidDouble("Enter the account holder's balance: ");
-                int creditScore = ProjectUtils.getValidInt("Enter the account holder's credit score");
-                //Validates the credit score
-                if (creditScore < 500 || creditScore > 800) {
-                    System.out.println("Invalid credit score. Please enter a number between 500 and 800.");
-                    continue;
-                }
-                //Asks for the account password
-                String accountPassword = ProjectUtils.getValidPassword("Enter the account holder's password: ");
-                //Generates a random account ID
-                int accountId = random.nextInt(9999999 - 1000000 + 1) + 1000000;
-                //Makes sure that the ID is not already taken
-                while (true) {
-                    if (loopThroughAccounts(accounts, accountId) == -1) {
-                        break;
-                    } else {
-                        accountId++;
-                        if (accountId > 9999999) {
-                            accountId = 1000000;
-                        }
-                    }
-                }
+                Account tempAccount = getAccountDetails(accounts);
                 //Prints the account ID returns the new account
-                System.out.println("Account ID: " + accountId);
+                System.out.println("Account ID: " + tempAccount.getAccountId());
                 System.out.println("Account created successfully!");
-                return new Account(accountId, name, balance, accountPassword, AccountStatus.ACTIVE, creditScore);
+                return tempAccount;
             }
             //Catch invalid input
             catch (Exception e) {

@@ -209,22 +209,10 @@ public class Main {
                     break;
                 }
                 //Ask to make more changes
-                if (!askToContinue()) {
+                if (!ProjectUtils.askToContinue()) {
                     return;
                 }
                 break;
-            }
-        }
-    }
-    public static boolean askToContinue () {
-        while (true) {
-            String answer = ProjectUtils.getValidString("Would you like to continue? (Y/N)");
-            if (answer.equalsIgnoreCase("Y")) {
-                return true;
-            } else if (answer.equalsIgnoreCase("N")) {
-                return false;
-            } else {
-                System.out.println("Invalid input. Please enter Y or N.");
             }
         }
     }
@@ -284,7 +272,7 @@ public class Main {
                                     continue;
                             }
                             //Ask to make more changes
-                            if (!askToContinue()) {
+                            if (!ProjectUtils.askToContinue()) {
                                 return;
                             }
                             break;

@@ -1,13 +1,13 @@
 package database;
-
+import enums.TransferDirection;
 public class Transfer {
     //Private fields
-    private double amountTransferred;
-    private int targetAccountId;
-    private int sourceAccountId;
-    private String direction;
+    private final double amountTransferred;
+    private final int targetAccountId;
+    private final int sourceAccountId;
+    private final TransferDirection direction;
     //Constructor for object creation
-    public Transfer(double amountTransferred, int targetAccountId, int sourceAccountId, String direction) {
+    public Transfer(double amountTransferred, int targetAccountId, int sourceAccountId, TransferDirection direction) {
         this.amountTransferred = amountTransferred;
         this.targetAccountId = targetAccountId;
         this.sourceAccountId = sourceAccountId;

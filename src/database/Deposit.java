@@ -2,8 +2,8 @@ package database;
 
 public class Deposit {
     //Private fields
-    private double amountDeposited;
-    private int accountId;
+    private final double amountDeposited;
+    private final int accountId;
     //Constructor for object creation
     public Deposit(double amountDeposited, int accountId) {
         this.amountDeposited = amountDeposited;
