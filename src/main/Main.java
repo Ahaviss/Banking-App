@@ -23,9 +23,9 @@ public class Main {
         while (true) {
             try {
                 //Check if the accounts list is empty
-                if (accounts.isEmpty()) {
+                if (!ProjectUtils.checkArrayList(accounts)) {
                     System.out.println("No accounts available. Please create an account.");
-                    continue;
+                    return;
                 }
                 //Call the login system for accounts
                 int tempUser = LoginSystem.accountLogin(accounts);
@@ -185,7 +185,7 @@ public class Main {
                             break;
                         case "edit password":
                             //Call editPassword method
-                            Account tempAccount2 = AccountLogic.editPassword(accounts.get(accountIndex));
+                            Account tempAccount2 = AccountLogic.editPasswordAdmin(accounts.get(accountIndex));
                             accounts.set(accountIndex, tempAccount2);
                             break;
                         case "edit credit score":

@@ -27,7 +27,7 @@ public class ProjectUtils {
     }
     public static boolean askToContinue () {
         while (true) {
-            String answer = ProjectUtils.getValidString("Would you like to continue? (Y/N)");
+            String answer = getValidString("Would you like to continue? (Y/N)");
             if (answer.equalsIgnoreCase("Y")) {
                 return true;
             } else if (answer.equalsIgnoreCase("N")) {

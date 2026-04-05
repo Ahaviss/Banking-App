@@ -133,8 +133,9 @@ public class AccountLogic {
             //Call getAccountDetails method
             Account tempAccount = getAccountDetails(accounts);
             //Print success message and student ID
-            System.out.println("Student ID: " + tempAccount.getAccountId());
+            System.out.println("Account ID: " + tempAccount.getAccountId());
             System.out.println("Account created successfully!");
+            accounts.add(tempAccount);
         }
         return accounts;
     }
@@ -190,32 +191,44 @@ public class AccountLogic {
         }
     }
     public static Account editPassword (Account account) {
-        try {
-            boolean passwordValidated = false;
-            for (int i = 0; i < 3; i++) {
-                //Asks the user for the current password and validates it
-                System.out.printf("Password change attempt %d/3%n", i + 1);
-                String currentPassword = ProjectUtils.getValidPassword("Enter the current password: ");
-                if (!account.getAccountPassword().equals(currentPassword)) {
-                    System.out.println("Incorrect password. Please try again.");
-                } else {
-                    passwordValidated = true;
-                    break;
+        while (true) {
+            try {
+                boolean passwordValidated = false;
+                for (int i = 0; i < 3; i++) {
+                    //Asks the user for the current password and validates it
+                    System.out.printf("Password change attempt %d/3%n", i + 1);
+                    String currentPassword = ProjectUtils.getValidString("Enter the current password: ");
+                    if (!account.getAccountPassword().equals(currentPassword)) {
+                        System.out.println("Incorrect password. Please try again.");
+                    } else {
+                        passwordValidated = true;
+                        break;
+                    }
                 }
+                //If the password is not validated, return null
+                if (!passwordValidated) {
+                    System.out.println("Password change failed. Please try again.");
+                    return null;
+                }
+                //Asks the user for the new password, validates it and sets it
+                String password = ProjectUtils.getValidPassword("Enter the new password: ");
+                account.setAccountPassword(password);
+                return account;
+                //Catch invalid input
+            } catch (Exception e) {
+                System.out.printf("An unexpected error occurred: %s%n", e.getMessage());
             }
-            //If the password is not validated, return null
-            if (!passwordValidated) {
-                System.out.println("Password change failed. Please try again.");
-                return null;
+        }
+    }
+    public static Account editPasswordAdmin (Account account) {
+        while (true) {
+            try {
+                String newPassword = ProjectUtils.getValidPassword("Please enter the new account password: ");
+                account.setAccountPassword(newPassword);
+                return account;
+            } catch (Exception e) {
+                System.out.printf("An unexpected error occurred: %s%n", e.getMessage());
             }
-            //Asks the user for the new password, validates it and sets it
-            String password = ProjectUtils.getValidPassword("Enter the new password: ");
-            account.setAccountPassword(password);
-            return account;
-        //Catch invalid input
-        } catch (Exception e) {
-            System.out.printf("An unexpected error occurred: %s%n", e.getMessage());
-            return account;
         }
     }
     public static Account editAccountHolder(Account account) {
