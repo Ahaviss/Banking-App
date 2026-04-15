@@ -1,7 +1,10 @@
 package database;
-
-public class Admin {
+import java.io.Serial;
+import java.io.Serializable;
+public class Admin implements Serializable {
     //Private fields
+    @Serial
+    private static final long serialVersionUID = 1L;
     private final int adminId;
     private String adminName;
     private String adminPassword;

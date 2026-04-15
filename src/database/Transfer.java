@@ -1,7 +1,11 @@
 package database;
+import java.io.Serial;
+import java.io.Serializable;
 import enums.TransferDirection;
-public class Transfer {
+public class Transfer implements Serializable {
     //Private fields
+    @Serial
+    private static final long serialVersionUID = 1L;
     private final double amountTransferred;
     private final int targetAccountId;
     private final int sourceAccountId;

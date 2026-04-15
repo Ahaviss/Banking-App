@@ -2,6 +2,7 @@ package main;
 //Java imports
 import java.util.ArrayList;
 //Local imports
+import save.SaveData;
 import database.Account;
 import database.Admin;
 import enums.*;
@@ -140,6 +141,7 @@ public class Main {
                 case "quit program":
                     System.out.println("Terminating program...");
                     //Terminates the JVM
+                    saveData();
                     System.exit(0);
                     break;
                 default:
@@ -326,6 +328,7 @@ public class Main {
                     case "quit program":
                         System.out.println("Terminating program...");
                         //Terminates the JVM
+                        saveData();
                         System.exit(0);
                     default:
                         //Invalid option
@@ -384,6 +387,7 @@ public class Main {
                 case "quit":
                     System.out.println("Terminating program...");
                     //Terminates the JVM
+                    saveData();
                     System.exit(0);
                     break;
                 default:
@@ -397,8 +401,17 @@ public class Main {
             }
         }
     }
+    public static void loadData () {
+        accounts = SaveData.loadAccountData();
+        admins = SaveData.loadAdminData();
+    }
+    public static void saveData () {
+        SaveData.saveAccountData(accounts);
+        SaveData.saveAdminData(admins);
+    }
     //Main method
     public static void main(String[] args) {
+        loadData();
         while (true) {
             try {
                 //If the role is admin or owner, call the adminPanel method
@@ -422,13 +435,9 @@ public class Main {
                     } else if (login.equalsIgnoreCase("admin")) {
                         //Calls the adminLogin method
                         adminLogin();
-                    } else if (login.equalsIgnoreCase("quit")) {
-                        System.out.println("Terminating program...");
-                        //Terminates the JVM
-                        System.exit(0);
                     } else {
                         //Invalid input
-                        System.out.println("Invalid input. Please enter 'account holder' or 'admin'.");
+                        System.out.println("Invalid input. Please enter 'account holder', 'admin', or 'quit'.");
                     }
                 } else if (answer.equalsIgnoreCase("create")) {
                     //Calls the createAccount method
@@ -436,9 +445,11 @@ public class Main {
                     int tempAccountID = account.getAccountId();
                     //Stores the account in the accounts list
                     accounts.add(account);
-                    System.out.println("Account created successfully!");
-                    //Prints the account ID
-                    System.out.printf("Your account ID: %d%n", tempAccountID);
+                } else if (answer.equalsIgnoreCase("quit")) {
+                    System.out.println("Terminating program...");
+                    //Terminates the JVM
+                    saveData();
+                    System.exit(0);
                 } else {
                     //Invalid input
                     System.out.println("Invalid input. Please enter 'login' or 'create'.");

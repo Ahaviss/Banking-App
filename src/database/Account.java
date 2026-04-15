@@ -1,10 +1,14 @@
 package database;
 //Java imports
+import java.io.Serial;
 import java.util.ArrayList;
+import java.io.Serializable;
 //Local imports
 import enums.AccountStatus;
-public class Account {
+public class Account implements Serializable {
     //Private fields
+    @Serial
+    private static final long serialVersionUID = 1L;
     private final int accountId;
     private String accountHolder;
     private double balance;

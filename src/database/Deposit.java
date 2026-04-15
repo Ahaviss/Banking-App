@@ -1,7 +1,10 @@
 package database;
-
-public class Deposit {
+import java.io.Serial;
+import java.io.Serializable;
+public class Deposit implements Serializable {
     //Private fields
+    @Serial
+    private static final long serialVersionUID = 1L;
     private final double amountDeposited;
     private final int accountId;
     //Constructor for object creation

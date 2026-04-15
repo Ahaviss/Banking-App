@@ -1,7 +1,10 @@
 package database;
-
-public class Withdraw {
+import java.io.Serial;
+import java.io.Serializable;
+public class Withdraw implements Serializable {
     //Private fields
+    @Serial
+    private static final long serialVersionUID = 1L;
     private final double amountWithdrawn;
     private final int accountId;
     //Constructor for object creation
