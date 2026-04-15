@@ -45,4 +45,10 @@ Because the project uses a multi-package structure, running it via an IDE is the
 3. Navigate to the `Main.java` file and click **Run**.
 
 ---
+
+## Updates
+
+* Added File I/O and saving data.
+---
+
 *Developed by Ahaviss - 2026*
