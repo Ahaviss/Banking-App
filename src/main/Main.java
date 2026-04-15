@@ -11,7 +11,7 @@ import logic.*;
 public class Main {
     //Owner's credentials'
     private static final String ownerName = "tempUsername@123";
-    private static final String ownerPassword = "tempPassword@123";
+    private static final String ownerPassword = ProjectUtils.hashPassword("tempPassword@123");
     //Current account index
     private static int currentAccount = 0;
     //Current role

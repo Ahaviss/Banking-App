@@ -106,7 +106,8 @@ public class AccountLogic {
                 continue;
             }
             //Asks for the account password
-            String accountPassword = ProjectUtils.getValidPassword("Enter the account holder's password: ");
+            String tempAccountPassword = ProjectUtils.getValidPassword("Enter the account holder's password: ");
+            String accountPassword = ProjectUtils.hashPassword(tempAccountPassword);
             //Generates a random account ID
             int accountId = random.nextInt(9999999 - 1000000 + 1) + 1000000;
             //Makes sure that the ID is not already taken
@@ -197,7 +198,8 @@ public class AccountLogic {
                 for (int i = 0; i < 3; i++) {
                     //Asks the user for the current password and validates it
                     System.out.printf("Password change attempt %d/3%n", i + 1);
-                    String currentPassword = ProjectUtils.getValidString("Enter the current password: ");
+                    String tempCurrentPassword = ProjectUtils.getValidString("Enter the current password: ");
+                    String currentPassword = ProjectUtils.hashPassword(tempCurrentPassword);
                     if (!account.getAccountPassword().equals(currentPassword)) {
                         System.out.println("Incorrect password. Please try again.");
                     } else {
@@ -211,7 +213,8 @@ public class AccountLogic {
                     return null;
                 }
                 //Asks the user for the new password, validates it and sets it
-                String password = ProjectUtils.getValidPassword("Enter the new password: ");
+                String tempPassword = ProjectUtils.getValidPassword("Enter the new password: ");
+                String password = ProjectUtils.hashPassword(tempPassword);
                 account.setAccountPassword(password);
                 return account;
                 //Catch invalid input

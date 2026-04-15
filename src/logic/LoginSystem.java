@@ -20,7 +20,8 @@ public class LoginSystem {
             System.out.printf("Login attempt %d/3%n", i + 1);
             //Gets the account ID and password
             String tempAccountId = ProjectUtils.getValidString("Enter your account ID: ");
-            String accountPassword = ProjectUtils.getValidString("Enter your account password: ");
+            String tempAccountPassword = ProjectUtils.getValidString("Enter your account password: ");
+            String accountPassword = ProjectUtils.hashPassword(tempAccountPassword);
             //Checks if the ID is a number
             boolean isNumber = tempAccountId.matches("\\d+");
             if (!isNumber) {
@@ -71,7 +72,8 @@ public class LoginSystem {
             System.out.printf("Login attempt %d/3%n", i + 1);
             //Gets the admin ID and password
             String adminId = ProjectUtils.getValidString("Enter your admin ID: ");
-            String adminPassword = ProjectUtils.getValidString("Enter your admin password: ");
+            String tempAdminPassword = ProjectUtils.getValidString("Enter your admin password: ");
+            String adminPassword = ProjectUtils.hashPassword(tempAdminPassword);
             //Checks if the ID and password match the owner
             if (adminId.equals(ownerName) && adminPassword.equals(ownerPassword)) {
                 return Integer.MIN_VALUE;

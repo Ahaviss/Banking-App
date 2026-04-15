@@ -1,6 +1,9 @@
 package utilities;
 //Java imports
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Scanner;
 public class ProjectUtils {
     private static final Scanner scanner = new Scanner(System.in);
@@ -123,6 +126,20 @@ public class ProjectUtils {
             catch (Exception e) {
                 System.out.printf("An unexpected error occurred: %s%n", e.getMessage());
             }
+        }
+    }
+    public static String hashPassword(String password) {
+        try {
+            // Get an instance of the SHA-256 algorithm
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+
+            // Convert the password string into bytes and hash it
+            byte[] encodedHash = digest.digest(password.getBytes());
+
+            // Convert the byte array into a Base64 string so it can be stored as text
+            return Base64.getEncoder().encodeToString(encodedHash);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Error: Hashing algorithm not found!");
         }
     }
     //Generic method to check if an arraylist is empty
