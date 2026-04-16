@@ -384,7 +384,7 @@ public class Main {
                     //Sets user role to none
                     role = LoginEnums.NONE;
                     return;
-                case "quit":
+                case "quit program":
                     System.out.println("Terminating program...");
                     //Terminates the JVM
                     saveData();
