@@ -83,7 +83,7 @@ public class AccountLogic {
             accounts.get(sourceAccountIndex).addTransfer(new Transfer(transferAmount, recipientAccountId, accounts.get(sourceAccountIndex).getAccountId(), TransferDirection.OUTGOING));
             accounts.get(recipientIndex).addTransfer(new Transfer(transferAmount, recipientAccountId, accounts.get(sourceAccountIndex).getAccountId(), TransferDirection.INCOMING));
             while (true) {
-                String answer = ProjectUtils.getValidString("Transfer successful. Do you want to make another deposit? Y/N");
+                String answer = ProjectUtils.getValidString("Transfer successful. Do you want to make another transfer? Y/N");
                 if (answer.equalsIgnoreCase("Y")) {
                     break;
                 } else if (answer.equalsIgnoreCase("N")) {
