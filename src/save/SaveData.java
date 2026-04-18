@@ -36,7 +36,6 @@ public class SaveData {
     public static void saveAccountData (ArrayList<Account> accounts) {
         File file = new File("accountMetadata.ser");
         try (ObjectOutputStream ous = new ObjectOutputStream(new FileOutputStream(file))) {
-            if (!file.exists()) file.createNewFile();
             ous.writeObject(accounts);
         }
         catch (IOException e) {
@@ -47,7 +46,6 @@ public class SaveData {
     public static void saveAdminData (ArrayList<Admin> admins) {
         File file = new File("adminMetadata.ser");
         try (ObjectOutputStream ous = new ObjectOutputStream(new FileOutputStream(file))) {
-            if (!file.exists()) file.createNewFile();
             ous.writeObject(admins);
         }
         catch (IOException e) {

@@ -15,7 +15,7 @@ public class Main {
     //Current account index
     private static int currentAccount = -1;
     //Current role
-    private static enums.LoginEnums role = LoginEnums.NONE;
+    private static LoginEnums role = LoginEnums.NONE;
     //Account and admin lists
     private static ArrayList<Account> accounts = new ArrayList<>();
     private static ArrayList<Admin> admins = new ArrayList<>();
@@ -450,7 +450,6 @@ public class Main {
                 } else if (answer.equalsIgnoreCase("create")) {
                     //Calls the createAccount method
                     Account account = AccountLogic.createOneAccount(accounts);
-                    int tempAccountID = account.getAccountId();
                     //Stores the account in the accounts list
                     accounts.add(account);
                 } else if (answer.equalsIgnoreCase("quit")) {

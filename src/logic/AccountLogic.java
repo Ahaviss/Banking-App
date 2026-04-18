@@ -11,7 +11,7 @@ import java.util.ArrayList;
 public class AccountLogic {
     //RNG for account ID
     private static final Random random = new Random();
-    public static Account withdraw (Account account) {
+    public static void withdraw (Account account) {
         while (true) {
             //Asks for the withdrawal amount
             double withdrawAmount = ProjectUtils.getValidDouble(String.format("Enter the amount you want to withdraw (%.2f available): ", account.getBalance()));
@@ -20,7 +20,7 @@ public class AccountLogic {
                 System.out.println("Insufficient balance.");
                 //Asks to retry the withdrawal
                 if (!ProjectUtils.askToContinue()) {
-                    return account;
+                    return;
                 }
                 continue;
             }
@@ -32,7 +32,7 @@ public class AccountLogic {
                 //Asks if the user wants to make another withdrawal
                 String answer = ProjectUtils.getValidString("Withdrawal successful. Do you want to make another withdrawal? Y/N");
                 if (answer.equalsIgnoreCase("N")) {
-                    return account;
+                    return;
                 } else if (answer.equalsIgnoreCase("Y")) {
                     break;
                 } else {
@@ -41,7 +41,7 @@ public class AccountLogic {
             }
         }
     }
-    public static Account deposit (Account account) {
+    public static void deposit (Account account) {
         while (true) {
             //Asks for the deposit amount
             double depositAmount = ProjectUtils.getValidDouble("Enter the amount you want to deposit: ");
@@ -54,14 +54,14 @@ public class AccountLogic {
                 if (answer.equalsIgnoreCase("Y")) {
                     break;
                 } else if (answer.equalsIgnoreCase("N")) {
-                    return account;
+                    return;
                 } else {
                     System.out.println("Invalid input. Please enter Y or N.");
                 }
             }
         }
     }
-    public static ArrayList<Account> transfer (ArrayList<Account> accounts, int sourceAccountIndex) {
+    public static void transfer (ArrayList<Account> accounts, int sourceAccountIndex) {
         //Asks the user for the recipient ID and amount to transfer
         while (true) {
             int recipientAccountId = ProjectUtils.getValidInt("Enter the ID of the recipient account: ");
@@ -87,7 +87,7 @@ public class AccountLogic {
                 if (answer.equalsIgnoreCase("Y")) {
                     break;
                 } else if (answer.equalsIgnoreCase("N")) {
-                    return accounts;
+                    return;
                 } else {
                     System.out.println("Invalid input. Please enter Y or N.");
                 }
@@ -226,7 +226,8 @@ public class AccountLogic {
     public static Account editPasswordAdmin (Account account) {
         while (true) {
             try {
-                String newPassword = ProjectUtils.getValidPassword("Please enter the new account password: ");
+                String tempNewPassword = ProjectUtils.getValidPassword("Please enter the new account password: ");
+                String newPassword = ProjectUtils.hashPassword(tempNewPassword);
                 account.setAccountPassword(newPassword);
                 return account;
             } catch (Exception e) {

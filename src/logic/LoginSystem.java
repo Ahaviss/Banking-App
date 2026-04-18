@@ -46,6 +46,7 @@ public class LoginSystem {
                     foundUsernames[i] = accountId;
                     indexes[i] = j;
                 }
+                else foundUsernames[i] = -1;
             }
             System.out.println("Invalid account ID or password. Please try again.");
         }
