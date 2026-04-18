@@ -336,6 +336,7 @@ public class Main {
                             killswitch = true;
                             System.exit(0);
                         }
+                        break;
                     default:
                         //Invalid option
                         System.out.println("Invalid option. Please try again.");
