@@ -49,6 +49,9 @@ Because the project uses a multi-package structure, running it via an IDE is the
 ## Updates
 
 * Added File I/O and saving data.
+* Added basic SHA-256 password hashing.
+* Added a killswitch in owner panel.
+* Data is now saved with shutdown hooks.
 ---
 
 *Developed by Ahaviss - 2026*
