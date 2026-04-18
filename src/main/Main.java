@@ -2,6 +2,8 @@ package main;
 //Java imports
 import java.util.ArrayList;
 //Local imports
+import database.Owner;
+import exceptions.*;
 import save.SaveData;
 import database.Account;
 import database.Admin;
@@ -10,8 +12,7 @@ import utilities.ProjectUtils;
 import logic.*;
 public class Main {
     //Owner's credentials'
-    private static final String ownerName = "tempUsername@123";
-    private static final String ownerPassword = ProjectUtils.hashPassword("tempPassword@123");
+    private static Owner owner = new Owner();
     //Current account index
     private static int currentAccount = -1;
     //Current role
@@ -31,22 +32,21 @@ public class Main {
                     return;
                 }
                 //Call the login system for accounts
-                int tempUser = LoginSystem.accountLogin(accounts);
-                //If the user doesn't exist.
-                if (tempUser == -1) {
-                    System.out.println("Account not found. Please try again.");
-                    continue;
-                //If the user is locked.
-                } else if (tempUser == -2) {
-                    System.out.println("Account locked due to repeated login attempts. \nPlease contact the bank for assistance.");
-                    int lockedUser = LoginSystem.getIndex();
-                    //Set the account status
-                    accounts.get(lockedUser).setAccountStatus(AccountStatus.LOCKED);
-                    return;
-                //If the account is locked.
-                } else if (tempUser == -3) {
-                    System.out.println("Account is locked. Please contact the bank for assistance.");
-                    return;
+                int tempUser;
+                try {
+                    tempUser = LoginSystem.accountLogin(accounts);
+                }
+                catch (AccountLockedException e) {
+                    System.out.println(e.getMessage());
+                    int accountIndex = e.traceAccountIndex();
+                    if (accountIndex != -1) {
+                        accounts.get(accountIndex).setAccountStatus(AccountStatus.LOCKED);
+                    }
+                    break;
+                }
+                catch (LoginFailedException e) {
+                    System.out.println(e.getMessage());
+                    break;
                 }
                 //Login user if the above conditions aren't true
                 System.out.println("Login successful!");
@@ -71,7 +71,7 @@ public class Main {
         while (true) {
             try {
                 //Calls the login system for admins
-                int adminIndex = LoginSystem.adminLogin(admins, ownerName, ownerPassword);
+                int adminIndex = LoginSystem.adminLogin(admins, owner);
                 //If the admin was validated as the owner
                 if (adminIndex == Integer.MIN_VALUE) {
                     System.out.println("Welcome back, owner!");
@@ -172,10 +172,13 @@ public class Main {
             while (true) {
                 //Gets the ID of the account to edit
                 int accountId = ProjectUtils.getValidInt("Enter the ID of the account you want to edit: ");
-                int accountIndex = AccountLogic.loopThroughAccounts(accounts, accountId);
+                int accountIndex = -1;
+                try {
+                    accountIndex = AccountLogic.loopThroughAccounts(accounts, accountId);
+                }
                 //If the account isn't found
-                if (accountIndex == -1) {
-                    System.out.println("Account not found.");
+                catch (UserNotFoundException e) {
+                    System.out.println(e.getMessage());
                     continue;
                 }
                 while (true) {
@@ -240,14 +243,16 @@ public class Main {
                         return;
                     }
                     for (int i = 0; i < amountOfAdminsToEdit; i++) {
-                        int adminIndex;
+                        int adminIndex = -1;
                         while (true) {
                             //Gets the ID of the admin to edit
                             int adminId = ProjectUtils.getValidInt("Enter the ID of the admin you want to edit: ");
-                            adminIndex = AdminLogic.loopThroughAdmins(admins, adminId);
+                            try {
+                                adminIndex = AdminLogic.loopThroughAdmins(admins, adminId);
+                            }
                             //If admin not found
-                            if (adminIndex == -1) {
-                                System.out.println("Admin not found.");
+                            catch (UserNotFoundException e) {
+                                System.out.println(e.getMessage());
                                 continue;
                             }
                             break;
@@ -293,12 +298,47 @@ public class Main {
             }
         }
     }
+    public static void editOwner () {
+        while (true) {
+            try {
+                boolean validated = false;
+                for (int i = 0; i < 3; i++) {
+                    String currentPassword = ProjectUtils.getValidString("Please enter current owner password.");
+                    if (currentPassword.equals(owner.getPassword())) {
+                        validated = true;
+                        break;
+                    }
+                    else System.out.println("Invalid password. Please try again.");
+                }
+                if (!validated) {
+                    System.out.println("Password change failed. Please try again.");
+                    return;
+                }
+                String option = ProjectUtils.getValidString("Edit Username, Edit Password, Quit editing");
+                switch (option.toLowerCase()) {
+                    case "edit username":
+                        owner.setUsername(ProjectUtils.getValidString("Enter new username:"));
+                        break;
+                    case "edit password":
+                        owner.setPassword(ProjectUtils.getValidPassword("Enter new password:"));
+                        break;
+                    case "quit editing":
+                        return;
+                    default:
+                        System.out.println("Invalid option. Please try again.");
+                }
+            }
+            catch (Exception e) {
+                System.out.printf("An unexpected error occurred: %s%n", e.getMessage());
+            }
+        }
+    }
     public static void ownerPanel () {
         //Owner panel options
         boolean quit = true;
         while (quit) {
             try {
-                String option = ProjectUtils.getValidString("Add Admins, Delete Admins, Edit Admins, Logout, Quit Owner Panel, Killswitch, Quit Program");
+                String option = ProjectUtils.getValidString("Add Admins, Delete Admins, Edit Admins, Logout, Quit Owner Panel, Killswitch, Edit Owner Account, Quit Program");
                 switch (option.toLowerCase()) {
                     case "add admins":
                         //Calls addAdmin method
@@ -337,6 +377,8 @@ public class Main {
                             System.exit(0);
                         }
                         break;
+                    case "edit owner account":
+                        editOwner();
                     default:
                         //Invalid option
                         System.out.println("Invalid option. Please try again.");
@@ -410,6 +452,7 @@ public class Main {
     public static void loadData () {
         accounts = SaveData.loadAccountData();
         admins = SaveData.loadAdminData();
+        owner = SaveData.loadOwnerData();
     }
     //Main method
     public static void main(String[] args) {
@@ -418,7 +461,7 @@ public class Main {
         runtime.addShutdownHook(new Thread(() -> {
             if (killswitch) return;
             SaveData.saveAccountData(accounts);
-            SaveData.saveAdminData(admins);
+            SaveData.saveAdminData(admins, owner);
         }));
         while (true) {
             try {

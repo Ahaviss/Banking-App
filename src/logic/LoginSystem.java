@@ -1,18 +1,16 @@
 package logic;
 //Local imports
 import database.Admin;
+import database.Owner;
 import enums.AccountStatus;
+import exceptions.*;
 import utilities.ProjectUtils;
 import database.Account;
 //Java imports
 import java.util.ArrayList;
 public class LoginSystem {
-    //Index for account login
-    private static int index;
-    //Returns the index
-    public static int getIndex() {int tempIndex = index; index = 0; return tempIndex;}
     //Total tries
-    public static int accountLogin (ArrayList<Account> accounts) {
+    public static int accountLogin (ArrayList<Account> accounts) throws AccountLockedException, LoginFailedException {
         //Arrays to track if the same username is targeted multiple times
         int[] foundUsernames = new int[3];
         int[] indexes = new int[3];
@@ -35,8 +33,7 @@ public class LoginSystem {
                 if (accounts.get(j).getAccountId() == accountId && accounts.get(j).getAccountPassword().equals(accountPassword)) {
                     //Checks if the account is locked if the above is true
                     if (accounts.get(j).getAccountStatus() == AccountStatus.LOCKED) {
-                        System.out.println("Account is locked. Please contact the bank for assistance.");
-                        return -3;
+                        throw new AccountLockedException(accounts.get(j).getAccountId());
                     }
                     //Otherwise, return the index
                     return j;
@@ -45,6 +42,7 @@ public class LoginSystem {
                 if (accounts.get(j).getAccountId() == accountId) {
                     foundUsernames[i] = accountId;
                     indexes[i] = j;
+                    break;
                 }
                 else foundUsernames[i] = -1;
             }
@@ -62,13 +60,12 @@ public class LoginSystem {
         }
         //Returns the value to indicate the account should be locked
         if (amountOfTimes >= 3) {
-            index = indexes[0];
-            return -2;
+            throw new AccountLockedException(accounts.get(indexes[0]).getAccountId(), indexes[0]);
         }
         //Otherwise
-        return -1;
+        throw new LoginFailedException();
     }
-    public static int adminLogin (ArrayList<Admin> admins, String ownerName, String ownerPassword) {
+    public static int adminLogin (ArrayList<Admin> admins, Owner owner) {
         for (int i = 0; i < 3; i++) {
             System.out.printf("Login attempt %d/3%n", i + 1);
             //Gets the admin ID and password
@@ -76,7 +73,7 @@ public class LoginSystem {
             String tempAdminPassword = ProjectUtils.getValidString("Enter your admin password: ");
             String adminPassword = ProjectUtils.hashPassword(tempAdminPassword);
             //Checks if the ID and password match the owner
-            if (adminId.equals(ownerName) && adminPassword.equals(ownerPassword)) {
+            if (adminId.equals(owner.getUsername()) && adminPassword.equals(owner.getPassword())) {
                 return Integer.MIN_VALUE;
             }
             //Checks if the ID is a number

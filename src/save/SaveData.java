@@ -3,6 +3,7 @@ import java.io.*;
 import java.util.ArrayList;
 import database.Account;
 import database.Admin;
+import database.Owner;
 import utilities.ProjectUtils;
 
 public class SaveData {
@@ -32,6 +33,17 @@ public class SaveData {
             return new ArrayList<>();
         }
     }
+    public static Owner loadOwnerData () {
+        File file = new File("ownerMetadata.ser");
+        if (!file.exists()) return new Owner();
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
+            return (Owner) ois.readObject();
+        }
+        catch (IOException | ClassNotFoundException e) {
+            System.err.println("Error loading data: " + e.getMessage());
+            return new Owner();
+        }
+    }
     //Saves account data
     public static void saveAccountData (ArrayList<Account> accounts) {
         File file = new File("accountMetadata.ser");
@@ -43,10 +55,17 @@ public class SaveData {
         }
     }
     //Saves admin data
-    public static void saveAdminData (ArrayList<Admin> admins) {
-        File file = new File("adminMetadata.ser");
-        try (ObjectOutputStream ous = new ObjectOutputStream(new FileOutputStream(file))) {
+    public static void saveAdminData (ArrayList<Admin> admins, Owner owner) {
+        File file1 = new File("adminMetadata.ser");
+        File file2 = new File("ownerMetadata.ser");
+        try (ObjectOutputStream ous = new ObjectOutputStream(new FileOutputStream(file1))) {
             ous.writeObject(admins);
+        }
+        catch (IOException e) {
+            System.err.println("Error saving data: " + e.getMessage());
+        }
+        try (ObjectOutputStream ous = new ObjectOutputStream(new FileOutputStream(file2))) {
+            ous.writeObject(owner);
         }
         catch (IOException e) {
             System.err.println("Error saving data: " + e.getMessage());

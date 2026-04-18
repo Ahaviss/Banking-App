@@ -2,7 +2,9 @@ package logic;
 //Java imports
 import database.*;
 import enums.AccountStatus;
+import enums.LoginEnums;
 import enums.TransferDirection;
+import exceptions.UserNotFoundException;
 import utilities.ProjectUtils;
 //Local imports
 import java.util.Random;
@@ -71,9 +73,12 @@ public class AccountLogic {
                 System.out.println("Insufficient balance.");
                 continue;
             }
-            int recipientIndex = loopThroughAccounts(accounts, recipientAccountId);
-            if (recipientIndex == -1) {
-                System.out.println("Account not found.");
+            int recipientIndex = 0;
+            try {
+                recipientIndex = loopThroughAccounts(accounts, recipientAccountId);
+            }
+            catch (UserNotFoundException e) {
+                System.out.println(e.getMessage());
                 continue;
             }
             //Updates the balance
@@ -112,13 +117,15 @@ public class AccountLogic {
             int accountId = random.nextInt(9999999 - 1000000 + 1) + 1000000;
             //Makes sure that the ID is not already taken
             while (true) {
-                if (loopThroughAccounts(accounts, accountId) == -1) {
+                try {
+                    loopThroughAccounts(accounts, accountId);
+                }
+                catch (UserNotFoundException e) {
                     break;
-                } else {
-                    accountId++;
-                    if (accountId > 9999999) {
-                        accountId = 1000000;
-                    }
+                }
+                accountId++;
+                if (accountId > 9999999) {
+                    accountId = 1000000;
                 }
             }
             //Return the created account
@@ -140,14 +147,14 @@ public class AccountLogic {
         }
         return accounts;
     }
-    public static int loopThroughAccounts (ArrayList<Account> accounts, int accountId) {
+    public static int loopThroughAccounts (ArrayList<Account> accounts, int accountId) throws UserNotFoundException {
         //Finds a specific account using the account ID
         for (int i = 0; i < accounts.size(); i++) {
             if (accounts.get(i).getAccountId() == accountId) {
                 return i;
             }
         }
-        return -1;
+        throw new UserNotFoundException(LoginEnums.USER, String.format("Account ID %d not found.", accountId));
     }
     public static ArrayList<Account> deleteAccounts (ArrayList<Account> accounts) {
         //Checks if the accounts list is empty
@@ -168,10 +175,13 @@ public class AccountLogic {
                     while (true) {
                         //Asks for the account ID to delete
                         int accountId = ProjectUtils.getValidInt("Enter the ID of the account you want to delete: ");
-                        int accountIndex = loopThroughAccounts(accounts, accountId);
+                        int accountIndex = 0;
+                        try {
+                            accountIndex = loopThroughAccounts(accounts, accountId);
+                        }
                         //Validates input
-                        if (accountIndex == -1) {
-                            System.out.println("Account not found.");
+                        catch (UserNotFoundException e) {
+                            System.out.println(e.getMessage());
                             continue;
                         }
                         //Deletes the account

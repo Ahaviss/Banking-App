@@ -1,13 +1,15 @@
 package logic;
 //Local imports
 import database.*;
+import enums.LoginEnums;
+import exceptions.UserNotFoundException;
 import utilities.ProjectUtils;
 //Java imports
 import java.util.Random;
 import java.util.ArrayList;
 public class AdminLogic {
     //Loops through the admins to find a specific admin
-    public static int loopThroughAdmins (ArrayList<Admin> admins, int adminId) {
+    public static int loopThroughAdmins (ArrayList<Admin> admins, int adminId) throws UserNotFoundException {
         for (int i = 0; i < admins.size(); i++) {
             if (admins.get(i).getAdminId() == adminId) {
                 //Returns the index
@@ -15,7 +17,7 @@ public class AdminLogic {
             }
         }
         //If not found
-        return -1;
+        throw new UserNotFoundException(LoginEnums.ADMIN, String.format("Admin ID %d not found.", adminId));
     }
     public static ArrayList<Admin> deleteAdmins (ArrayList<Admin> admins) {
         //Checks if the admins list is empty
@@ -39,9 +41,12 @@ public class AdminLogic {
                     while (true) {
                         //Asks for the ID of the admin to delete
                         int adminId = ProjectUtils.getValidInt("Enter the ID of the admin you want to delete: ");
-                        int adminIndex = loopThroughAdmins(admins, adminId);
+                        int adminIndex = 0;
+                        try {
+                            adminIndex = loopThroughAdmins(admins, adminId);
+                        }
                         //Checks if the admin is found
-                        if (adminIndex == -1) {
+                        catch (UserNotFoundException e) {
                             System.out.println("Admin not found.");
                             continue;
                         }
@@ -93,14 +98,16 @@ public class AdminLogic {
                 int adminId = random.nextInt(9999999 - 1000000 + 1) + 1000000;
                 //Checks if the ID is already taken
                 while (true) {
-                    if (loopThroughAdmins(admins, adminId) == -1) {
+                    try {
+                        loopThroughAdmins(admins, adminId);
+                    }
+                    catch (UserNotFoundException e) {
                         break;
-                    } else {
-                        //Increments the ID and repeats the check
-                        adminId++;
-                        if (adminId > 9999999) {
-                            adminId = 1000000;
-                        }
+                    }
+                    //Increments the ID and repeats the check
+                    adminId++;
+                    if (adminId > 9999999) {
+                        adminId = 1000000;
                     }
                 }
                 //Prints the admin ID
