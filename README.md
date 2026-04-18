@@ -44,6 +44,13 @@ Because the project uses a multi-package structure, running it via an IDE is the
 2. Open the project folder in **IntelliJ IDEA**.
 3. Navigate to the `Main.java` file and click **Run**.
 
+#### How to Change Owner Password
+To change the owner password:
+1. Login as admin using tempUsername@123 for username and tempPassword@123 for password.
+2. Go into "owner panel" and "edit owner account".
+3. Type in the current password as specified before.
+4. Type in your new username and password.
+
 ---
 
 ## Updates
@@ -52,6 +59,8 @@ Because the project uses a multi-package structure, running it via an IDE is the
 * Added basic SHA-256 password hashing.
 * Added a killswitch in owner panel.
 * Data is now saved with shutdown hooks.
+* Removed hardcoded owner password and username.
+* Added custom exceptions instead of magic numbers.
 ---
 
 *Developed by Ahaviss - 2026*
