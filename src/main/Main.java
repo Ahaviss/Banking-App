@@ -13,7 +13,7 @@ public class Main {
     private static final String ownerName = "tempUsername@123";
     private static final String ownerPassword = ProjectUtils.hashPassword("tempPassword@123");
     //Current account index
-    private static int currentAccount = 0;
+    private static int currentAccount = -1;
     //Current role
     private static enums.LoginEnums role = LoginEnums.NONE;
     //Account and admin lists
@@ -129,6 +129,7 @@ public class Main {
                     System.out.println("Logging out...");
                     //Sets user role to none
                     role = LoginEnums.NONE;
+                    currentAccount = -1;
                     return;
                 case "change password":
                     //Call edit method
