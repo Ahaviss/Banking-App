@@ -19,6 +19,8 @@ public class Main {
     //Account and admin lists
     private static ArrayList<Account> accounts = new ArrayList<>();
     private static ArrayList<Admin> admins = new ArrayList<>();
+    //Killswitch boolean
+    private static boolean killswitch = false;
     //Account login
     public static void accountLogin () {
         while (true) {
@@ -141,7 +143,6 @@ public class Main {
                 case "quit program":
                     System.out.println("Terminating program...");
                     //Terminates the JVM
-                    saveData();
                     System.exit(0);
                     break;
                 default:
@@ -296,7 +297,7 @@ public class Main {
         boolean quit = true;
         while (quit) {
             try {
-                String option = ProjectUtils.getValidString("Add Admins, Delete Admins, Edit Admins, Logout, Quit Owner Panel, Quit Program");
+                String option = ProjectUtils.getValidString("Add Admins, Delete Admins, Edit Admins, Logout, Quit Owner Panel, Killswitch, Quit Program");
                 switch (option.toLowerCase()) {
                     case "add admins":
                         //Calls addAdmin method
@@ -328,8 +329,12 @@ public class Main {
                     case "quit program":
                         System.out.println("Terminating program...");
                         //Terminates the JVM
-                        saveData();
                         System.exit(0);
+                    case "killswitch":
+                        if (SaveData.killswitch()) {
+                            killswitch = true;
+                            System.exit(0);
+                        }
                     default:
                         //Invalid option
                         System.out.println("Invalid option. Please try again.");
@@ -387,7 +392,6 @@ public class Main {
                 case "quit program":
                     System.out.println("Terminating program...");
                     //Terminates the JVM
-                    saveData();
                     System.exit(0);
                     break;
                 default:
@@ -405,13 +409,15 @@ public class Main {
         accounts = SaveData.loadAccountData();
         admins = SaveData.loadAdminData();
     }
-    public static void saveData () {
-        SaveData.saveAccountData(accounts);
-        SaveData.saveAdminData(admins);
-    }
     //Main method
     public static void main(String[] args) {
         loadData();
+        Runtime runtime = Runtime.getRuntime();
+        runtime.addShutdownHook(new Thread(() -> {
+            if (killswitch) return;
+            SaveData.saveAccountData(accounts);
+            SaveData.saveAdminData(admins);
+        }));
         while (true) {
             try {
                 //If the role is admin or owner, call the adminPanel method
@@ -448,7 +454,6 @@ public class Main {
                 } else if (answer.equalsIgnoreCase("quit")) {
                     System.out.println("Terminating program...");
                     //Terminates the JVM
-                    saveData();
                     System.exit(0);
                 } else {
                     //Invalid input

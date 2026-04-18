@@ -3,6 +3,8 @@ import java.io.*;
 import java.util.ArrayList;
 import database.Account;
 import database.Admin;
+import utilities.ProjectUtils;
+
 public class SaveData {
     //Loads account data
     @SuppressWarnings("unchecked")
@@ -50,6 +52,35 @@ public class SaveData {
         }
         catch (IOException e) {
             System.err.println("Error saving data: " + e.getMessage());
+        }
+    }
+    public static boolean killswitch () {
+        while (true) {
+            try {
+                System.out.println("Are you sure you want to turn on the killswitch?");
+                System.out.println("This will delete all data and terminate the program.");
+                String option = ProjectUtils.getValidString("Y/N");
+                if (option.equalsIgnoreCase("y")) {
+                    File delete1 = new File("accountMetadata.ser");
+                    File delete2 = new File("adminMetadata.ser");
+                    if (delete1.exists()) {
+                        boolean del = delete1.delete();
+                        if (!del) System.out.println("Delete failed for account data.");
+                    }
+                    if (delete2.exists()) {
+                        boolean del = delete2.delete();
+                        if (!del) System.out.println("Delete failed for admin data.");
+                    }
+                    return true;
+                }
+                else if (option.equalsIgnoreCase("n")) return false;
+                else {
+                    System.out.println("Invalid input. Please try again.");
+                }
+            }
+            catch (Exception e) {
+                System.out.println("Error implementing killswitch: " + e.getMessage());
+            }
         }
     }
 }
