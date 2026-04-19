@@ -301,30 +301,37 @@ public class Main {
     public static void editOwner () {
         while (true) {
             try {
+                //Asks for and validates the current password
                 boolean validated = false;
                 for (int i = 0; i < 3; i++) {
-                    String currentPassword = ProjectUtils.getValidString("Please enter current owner password.");
+                    String tempCurrentPassword = ProjectUtils.getValidString("Please enter current owner password.");
+                    String currentPassword = ProjectUtils.hashPassword(tempCurrentPassword);
                     if (currentPassword.equals(owner.getPassword())) {
                         validated = true;
                         break;
                     }
                     else System.out.println("Invalid password. Please try again.");
                 }
+                //If not validated
                 if (!validated) {
                     System.out.println("Password change failed. Please try again.");
                     return;
                 }
+                //Asks for current action
                 String option = ProjectUtils.getValidString("Edit Username, Edit Password, Quit editing");
                 switch (option.toLowerCase()) {
                     case "edit username":
+                        //Sets username
                         owner.setUsername(ProjectUtils.getValidString("Enter new username:"));
                         break;
                     case "edit password":
+                        //Sets password
                         owner.setPassword(ProjectUtils.getValidPassword("Enter new password:"));
                         break;
                     case "quit editing":
                         return;
                     default:
+                        //Invalid option
                         System.out.println("Invalid option. Please try again.");
                 }
             }
@@ -372,13 +379,17 @@ public class Main {
                         //Terminates the JVM
                         System.exit(0);
                     case "killswitch":
+                        //Assigns killswitch to true
                         if (SaveData.killswitch()) {
                             killswitch = true;
+                            //Terminates the JVM
                             System.exit(0);
                         }
                         break;
                     case "edit owner account":
+                        //Calls editOwner method
                         editOwner();
+                        break;
                     default:
                         //Invalid option
                         System.out.println("Invalid option. Please try again.");
@@ -450,13 +461,16 @@ public class Main {
         }
     }
     public static void loadData () {
+        //Loads data
         accounts = SaveData.loadAccountData();
         admins = SaveData.loadAdminData();
         owner = SaveData.loadOwnerData();
     }
     //Main method
     public static void main(String[] args) {
+        //Calls loadData method
         loadData();
+        //Adds a shutdown hook to save data
         Runtime runtime = Runtime.getRuntime();
         runtime.addShutdownHook(new Thread(() -> {
             if (killswitch) return;

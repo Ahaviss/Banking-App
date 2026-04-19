@@ -1,5 +1,5 @@
 package exceptions;
-
+//To handle newly locked or previously locked accounts
 public class AccountLockedException extends Exception {
     private int accountIndex = -1;
     public AccountLockedException(int accountID) {

@@ -33,6 +33,7 @@ public class SaveData {
             return new ArrayList<>();
         }
     }
+    //Loads owner data
     public static Owner loadOwnerData () {
         File file = new File("ownerMetadata.ser");
         if (!file.exists()) return new Owner();
@@ -54,7 +55,7 @@ public class SaveData {
             System.err.println("Error saving data: " + e.getMessage());
         }
     }
-    //Saves admin data
+    //Saves admin and owner data
     public static void saveAdminData (ArrayList<Admin> admins, Owner owner) {
         File file1 = new File("adminMetadata.ser");
         File file2 = new File("ownerMetadata.ser");
@@ -71,15 +72,19 @@ public class SaveData {
             System.err.println("Error saving data: " + e.getMessage());
         }
     }
+    //Killswitch for owner
     public static boolean killswitch () {
         while (true) {
             try {
+                //Confirms with user
                 System.out.println("Are you sure you want to turn on the killswitch?");
                 System.out.println("This will delete all data and terminate the program.");
                 String option = ProjectUtils.getValidString("Y/N");
                 if (option.equalsIgnoreCase("y")) {
                     File delete1 = new File("accountMetadata.ser");
                     File delete2 = new File("adminMetadata.ser");
+                    File delete3 = new File("ownerMetadata.ser");
+                    //Deletes all files
                     if (delete1.exists()) {
                         boolean del = delete1.delete();
                         if (!del) System.out.println("Delete failed for account data.");
@@ -88,9 +93,14 @@ public class SaveData {
                         boolean del = delete2.delete();
                         if (!del) System.out.println("Delete failed for admin data.");
                     }
+                    if (delete3.exists()) {
+                        boolean del = delete3.delete();
+                        if (!del) System.out.println("Delete failed for owner data.");
+                    }
                     return true;
                 }
                 else if (option.equalsIgnoreCase("n")) return false;
+                //Invalid input
                 else {
                     System.out.println("Invalid input. Please try again.");
                 }

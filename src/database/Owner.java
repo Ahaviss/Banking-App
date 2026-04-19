@@ -11,7 +11,7 @@ public class Owner implements Serializable {
     private String username = "tempUsername@123";
     private String password = ProjectUtils.hashPassword("tempPassword@123");
     public void setPassword (String password) {
-        password = ProjectUtils.hashPassword(password);
+        this.password = ProjectUtils.hashPassword(password);
     }
     public String getPassword () {
         return password;
