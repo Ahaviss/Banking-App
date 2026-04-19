@@ -474,8 +474,7 @@ public class Main {
         Runtime runtime = Runtime.getRuntime();
         runtime.addShutdownHook(new Thread(() -> {
             if (killswitch) return;
-            SaveData.saveAccountData(accounts);
-            SaveData.saveAdminData(admins, owner);
+            SaveData.saveData(admins, accounts, owner);
         }));
         while (true) {
             try {

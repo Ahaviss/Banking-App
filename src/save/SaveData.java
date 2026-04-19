@@ -45,31 +45,28 @@ public class SaveData {
             return new Owner();
         }
     }
-    //Saves account data
-    public static void saveAccountData (ArrayList<Account> accounts) {
-        File file = new File("accountMetadata.ser");
-        try (ObjectOutputStream ous = new ObjectOutputStream(new FileOutputStream(file))) {
+    //Saves all data
+    public static void saveData(ArrayList<Admin> admins, ArrayList<Account> accounts, Owner owner) {
+        File file1 = new File("adminMetadata.ser");
+        File file2 = new File("ownerMetadata.ser");
+        File file3 = new File("accountMetadata.ser");
+        try (ObjectOutputStream ous = new ObjectOutputStream(new FileOutputStream(file3))) {
             ous.writeObject(accounts);
         }
         catch (IOException e) {
             System.err.println("Error saving data: " + e.getMessage());
         }
-    }
-    //Saves admin and owner data
-    public static void saveAdminData (ArrayList<Admin> admins, Owner owner) {
-        File file1 = new File("adminMetadata.ser");
-        File file2 = new File("ownerMetadata.ser");
         try (ObjectOutputStream ous = new ObjectOutputStream(new FileOutputStream(file1))) {
             ous.writeObject(admins);
         }
         catch (IOException e) {
-            System.err.println("Error saving data: " + e.getMessage());
+            System.err.println("Error saving admin data: " + e.getMessage());
         }
         try (ObjectOutputStream ous = new ObjectOutputStream(new FileOutputStream(file2))) {
             ous.writeObject(owner);
         }
         catch (IOException e) {
-            System.err.println("Error saving data: " + e.getMessage());
+            System.err.println("Error saving owner data: " + e.getMessage());
         }
     }
     //Killswitch for owner
