@@ -299,24 +299,24 @@ public class Main {
         }
     }
     public static void editOwner () {
+        //Asks for and validates the current password
+        boolean validated = false;
+        for (int i = 0; i < 3; i++) {
+            String tempCurrentPassword = ProjectUtils.getValidString("Please enter current owner password.");
+            String currentPassword = ProjectUtils.hashPassword(tempCurrentPassword);
+            if (currentPassword.equals(owner.getPassword())) {
+                validated = true;
+                break;
+            }
+            else System.out.println("Invalid password. Please try again.");
+        }
+        //If not validated
+        if (!validated) {
+            System.out.println("Password change failed. Please try again.");
+            return;
+        }
         while (true) {
             try {
-                //Asks for and validates the current password
-                boolean validated = false;
-                for (int i = 0; i < 3; i++) {
-                    String tempCurrentPassword = ProjectUtils.getValidString("Please enter current owner password.");
-                    String currentPassword = ProjectUtils.hashPassword(tempCurrentPassword);
-                    if (currentPassword.equals(owner.getPassword())) {
-                        validated = true;
-                        break;
-                    }
-                    else System.out.println("Invalid password. Please try again.");
-                }
-                //If not validated
-                if (!validated) {
-                    System.out.println("Password change failed. Please try again.");
-                    return;
-                }
                 //Asks for current action
                 String option = ProjectUtils.getValidString("Edit Username, Edit Password, Quit editing");
                 switch (option.toLowerCase()) {
