@@ -14,30 +14,12 @@ public class SaveData {
     private static final String OWNER_FILE    = "owner.ser";
     private static final String AUDIT_FILE    = "auditLogs.ser";
     //Loads account data
-    @SuppressWarnings("unchecked")
     public static ArrayList<Account> loadAccountData () {
-        File file = new File(ACCOUNTS_FILE);
-        if (!file.exists()) return new ArrayList<>();
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
-            return (ArrayList<Account>) ois.readObject();
-        }
-        catch (IOException | ClassNotFoundException e) {
-            System.err.println("Error loading data: " + e.getMessage());
-            return new ArrayList<>();
-        }
+        return loadList(ACCOUNTS_FILE, Account.class);
     }
     //Loads admin data
-    @SuppressWarnings("unchecked")
     public static ArrayList<Admin> loadAdminData () {
-        File file = new File(ADMINS_FILE);
-        if (!file.exists()) return new ArrayList<>();
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
-            return (ArrayList<Admin>) ois.readObject();
-        }
-        catch (IOException | ClassNotFoundException e) {
-            System.err.println("Error loading data: " + e.getMessage());
-            return new ArrayList<>();
-        }
+        return loadList(ADMINS_FILE, Admin.class);
     }
     //Loads owner data
     public static Owner loadOwnerData () {
@@ -52,15 +34,18 @@ public class SaveData {
         }
     }
     //Loads audit log data
-    @SuppressWarnings("unchecked")
     public static ArrayList<Log> loadAuditData () {
-        File file = new File(AUDIT_FILE);
+        return loadList(AUDIT_FILE, Log.class);
+    }
+    //Generic method to load data
+    @SuppressWarnings("unchecked")
+    private static <T> ArrayList<T> loadList(String filename, Class<T> type) {
+        File file = new File(filename);
         if (!file.exists()) return new ArrayList<>();
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
-            return (ArrayList<Log>) ois.readObject();
-        }
-        catch (IOException | ClassNotFoundException e) {
-            System.err.println("Error loading data: " + e.getMessage());
+            return (ArrayList<T>) ois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            System.err.println("Error loading " + filename + ": " + e.getMessage());
             return new ArrayList<>();
         }
     }
