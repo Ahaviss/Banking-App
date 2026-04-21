@@ -419,6 +419,7 @@ public class Main {
                     case "manage logs":
                         //Calls manageLogs method
                         manageLogs();
+                        break;
                     default:
                         //Invalid option
                         System.out.println("Invalid option. Please try again.");
