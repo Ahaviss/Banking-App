@@ -9,10 +9,14 @@ import logs.manager.LogManager;
 import utilities.ProjectUtils;
 
 public class SaveData {
+    private static final String ACCOUNTS_FILE = "accounts.ser";
+    private static final String ADMINS_FILE   = "admins.ser";
+    private static final String OWNER_FILE    = "owner.ser";
+    private static final String AUDIT_FILE    = "auditLogs.ser";
     //Loads account data
     @SuppressWarnings("unchecked")
     public static ArrayList<Account> loadAccountData () {
-        File file = new File("accountMetadata.ser");
+        File file = new File(ACCOUNTS_FILE);
         if (!file.exists()) return new ArrayList<>();
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
             return (ArrayList<Account>) ois.readObject();
@@ -25,7 +29,7 @@ public class SaveData {
     //Loads admin data
     @SuppressWarnings("unchecked")
     public static ArrayList<Admin> loadAdminData () {
-        File file = new File("adminMetadata.ser");
+        File file = new File(ADMINS_FILE);
         if (!file.exists()) return new ArrayList<>();
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
             return (ArrayList<Admin>) ois.readObject();
@@ -37,7 +41,7 @@ public class SaveData {
     }
     //Loads owner data
     public static Owner loadOwnerData () {
-        File file = new File("ownerMetadata.ser");
+        File file = new File(OWNER_FILE);
         if (!file.exists()) return new Owner();
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
             return (Owner) ois.readObject();
@@ -50,7 +54,7 @@ public class SaveData {
     //Loads audit log data
     @SuppressWarnings("unchecked")
     public static ArrayList<Log> loadAuditData () {
-        File file = new File("auditMetadata.ser");
+        File file = new File(AUDIT_FILE);
         if (!file.exists()) return new ArrayList<>();
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
             return (ArrayList<Log>) ois.readObject();
@@ -62,10 +66,10 @@ public class SaveData {
     }
     //Saves all data
     public static void saveData(ArrayList<Admin> admins, ArrayList<Account> accounts, Owner owner, ArrayList<Log> logs) {
-        File file1 = new File("adminMetadata.ser");
-        File file2 = new File("ownerMetadata.ser");
-        File file3 = new File("accountMetadata.ser");
-        File file4 = new File("auditMetadata.ser");
+        File file1 = new File(ADMINS_FILE);
+        File file2 = new File(OWNER_FILE);
+        File file3 = new File(ACCOUNTS_FILE);
+        File file4 = new File(AUDIT_FILE);
         try (ObjectOutputStream ous = new ObjectOutputStream(new FileOutputStream(file3))) {
             ous.writeObject(accounts);
         }
@@ -94,7 +98,7 @@ public class SaveData {
     //To delete logs file
     public static void clearLogs () {
         try {
-            File file = new File ("auditMetadata.ser");
+            File file = new File (AUDIT_FILE);
             if (file.exists()) {
                 boolean del = file.delete();
                 if (!del) {
@@ -117,10 +121,10 @@ public class SaveData {
                 System.out.println("This will delete all data and terminate the program.");
                 String option = ProjectUtils.getValidString("Y/N");
                 if (option.equalsIgnoreCase("y")) {
-                    File delete1 = new File("accountMetadata.ser");
-                    File delete2 = new File("adminMetadata.ser");
-                    File delete3 = new File("ownerMetadata.ser");
-                    File delete4 = new File("auditMetadata.ser");
+                    File delete1 = new File(ACCOUNTS_FILE);
+                    File delete2 = new File(ADMINS_FILE);
+                    File delete3 = new File(OWNER_FILE);
+                    File delete4 = new File(AUDIT_FILE);
                     //Deletes all files
                     if (delete1.exists()) {
                         boolean del = delete1.delete();
