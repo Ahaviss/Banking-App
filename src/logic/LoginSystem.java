@@ -7,10 +7,12 @@ import exceptions.*;
 import utilities.ProjectUtils;
 import database.Account;
 //Java imports
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 public class LoginSystem {
     //Total tries
-    public static int accountLogin (ArrayList<Account> accounts) throws AccountLockedException, LoginFailedException {
+    public static Account accountLogin (ArrayList<Account> accounts) throws AccountLockedException, LoginFailedException {
         //Arrays to track if the same username is targeted multiple times
         int[] foundUsernames = new int[3];
         int[] indexes = new int[3];
@@ -33,10 +35,21 @@ public class LoginSystem {
                 if (accounts.get(j).getAccountId() == accountId && accounts.get(j).getAccountPassword().equals(accountPassword)) {
                     //Checks if the account is locked if the above is true
                     if (accounts.get(j).getAccountStatus() == AccountStatus.LOCKED) {
-                        throw new AccountLockedException(accounts.get(j).getAccountId());
+                        Account account = accounts.get(j);
+                        LocalDateTime lockedTime = account.getAccountLockedTime();
+                        Duration duration = Duration.between(lockedTime, LocalDateTime.now());
+                        if (account.getDurationLocked() == Integer.MAX_VALUE) throw new AccountLockedException(accounts.get(j).getAccountId(), Integer.MAX_VALUE);
+                        if (duration.toMinutes() >= account.getDurationLocked()) {
+                            account.setAccountStatus(AccountStatus.ACTIVE);
+                            account.setDurationLocked(0);
+                            account.setAccountLockedTime(null);
+                            account.setAmountOfTimesLocked(0);
+                            return accounts.get(j);
+                        }
+                        throw new AccountLockedException(accounts.get(j).getAccountId(), account.getDurationLocked() - (int) duration.toMinutes());
                     }
                     //Otherwise, return the index
-                    return j;
+                    return accounts.get(j);
                 }
                 //If none of the above is true, check if the account ID matches input
                 if (accounts.get(j).getAccountId() == accountId) {
@@ -60,7 +73,7 @@ public class LoginSystem {
         }
         //Returns the value to indicate the account should be locked
         if (amountOfTimes >= 3) {
-            throw new AccountLockedException(accounts.get(indexes[0]).getAccountId(), indexes[0]);
+            throw new AccountLockedException(accounts.get(indexes[0]));
         }
         //Otherwise
         throw new LoginFailedException();

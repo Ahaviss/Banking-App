@@ -1,13 +1,22 @@
 package exceptions;
+import database.Account;
+
 //To handle newly locked or previously locked accounts
 public class AccountLockedException extends Exception {
-    private int accountIndex = -1;
-    public AccountLockedException(int accountID) {
-        super(String.format("Account is locked. Please contact the bank for assistance.%nCause: %d is locked", accountID));
+    private Account account = null;
+    public AccountLockedException(int accountID, int timeLeft) {
+        String message;
+        if (timeLeft == Integer.MAX_VALUE) {
+            message = String.format("Account is locked permanently. Please contact the bank for assistance.%nCause: %d is locked", accountID);
+        } else {
+            message = String.format("Account is locked for %d more minutes. Please contact the bank for assistance.%nCause: %d is locked", timeLeft, accountID);
+        }
+        super(message);
     }
-    public AccountLockedException (int accountID, int accountIndex) {
-        super(String.format("Account has been locked. Please contact the bank for assistance.%nCause: Repeated attempts on: %d", accountID));
-        this.accountIndex = accountIndex;
+    public AccountLockedException (Account account) {
+        super(String.format("Account has been locked. Please contact the bank for assistance.%nCause: Repeated attempts on: %d", account.getAccountId()));
+        this.account = account;
     }
-    public int traceAccountIndex () {return accountIndex;}
+
+    public Account traceAccount () {return account;}
 }

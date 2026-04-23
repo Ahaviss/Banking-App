@@ -13,7 +13,7 @@ This project is a multi-layered banking application that manages complex financi
     * **User:** Standard operations (Withdraw, Deposit, Transfers).
     * **Admin:** System oversight; can edit account details and view metadata.
     * **Owner:** Superuser status; full authority to add, edit, and delete accounts.
-* **Core Functions:** * Secure internal transfers between accounts.
+* **Core Functions:** Secure internal transfers between accounts.
     * Real-time balance updates and transaction logging.
     * Account status management (e.g., `ACTIVE` vs. `LOCKED`).
 * **Input Validation:** Use of **Regular Expressions (Regex)** and conditional logic to prevent malformed data and system crashes.
@@ -26,7 +26,7 @@ This project serves as a practical application of advanced Java concepts:
 
 * **OOP Principles:** Demonstrates **Composition**, **Encapsulation**, and **Object Identity**.
 * **Generics:** Implemented for flexible data handling and storage.
-* **Scale:** Consists of **~1,050 lines of code** (excluding comments) organized into a clean, multi-package structure.
+* **Scale:** Consists of **~1,500-1,800 lines of code** (excluding comments) organized into a clean, multi-package structure.
 * **Defensive Coding:** Heavy emphasis on preventing `Exceptions` through proactive data checking.
 
 ---
@@ -34,7 +34,7 @@ This project serves as a practical application of advanced Java concepts:
 ## 💻 Getting Started
 
 ### Prerequisites
-* **Java Development Kit (JDK) 23** (recommended for compatibility).
+* **Java Development Kit (JDK) 23** (recommended for compatibility) as before JDK 22 it will give a compile-time error in AccountLockedException.java.
 * An IDE such as **IntelliJ IDEA**.
 
 ### How to Run
@@ -55,14 +55,15 @@ To change the owner password:
 
 ## Updates
 
-* Added File I/O and saving data.
-* Added basic SHA-256 password hashing.
+* MAJOR: Added File I/O and saving data.
+* MAJOR: Added basic SHA-256 password hashing.
 * Added a killswitch in owner panel.
 * Data is now saved with shutdown hooks.
 * Removed hardcoded owner password and username.
 * Added custom exceptions instead of magic numbers.
-* Added audit logs for the owner and is saved using File I/O.
+* MAJOR: Added audit logs for the owner and is saved using File I/O.
 * Added control flow to avoid System.exit(0).
+* MAJOR: Added time-based account lockouts instead of permanent lockouts
 ---
 
 *Developed by Ahaviss - 2026*

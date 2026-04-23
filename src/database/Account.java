@@ -5,10 +5,14 @@ import java.util.ArrayList;
 import java.io.Serializable;
 //Local imports
 import enums.AccountStatus;
+import java.time.LocalDateTime;
 public class Account implements Serializable {
     //Private fields
     @Serial
     private static final long serialVersionUID = 1L;
+    private LocalDateTime accountLockedTime;
+    private int amountOfTimesLocked;
+    private int durationLocked;
     private final int accountId;
     private String accountHolder;
     private double balance;
@@ -38,14 +42,17 @@ public class Account implements Serializable {
     public void addDeposit(Deposit deposit) {deposits.add(deposit);}
     public void addWithdraw(Withdraw withdraw) {withdraws.add(withdraw);}
     public void addTransfer(Transfer transfer) {transfers.add(transfer);}
-    public ArrayList<Deposit> getDeposits() {return deposits;}
-    public ArrayList<Withdraw> getWithdraws() {return withdraws;}
-    public ArrayList<Transfer> getTransfers() {return transfers;}
     public int getAccountId() {return accountId;}
     public String getAccountHolder() {return accountHolder;}
     public double getBalance() {return balance;}
     public void setBalance(double balance) {this.balance = balance;}
     public void setAccountHolder(String accountHolder) {this.accountHolder = accountHolder;}
+    public void setAccountLockedTime(LocalDateTime accountLockedTime) {this.accountLockedTime = accountLockedTime;}
+    public LocalDateTime getAccountLockedTime() {return accountLockedTime;}
+    public void setAmountOfTimesLocked (int amountOfTimesLocked) {this.amountOfTimesLocked = amountOfTimesLocked;}
+    public int getAmountOfTimesLocked() {return amountOfTimesLocked;}
+    public void setDurationLocked(int durationLocked) {this.durationLocked = durationLocked;}
+    public int getDurationLocked() {return durationLocked;}
     //Prints the account logs/history
     public void printHistory () {
         System.out.println("Account History:");

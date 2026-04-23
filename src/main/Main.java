@@ -16,8 +16,8 @@ public class Main {
     //Owner's credentials'
     private static Owner owner = new Owner();
     //Current account index
-    private static int currentAccount = -1;
-    private static int currentAdmin = -1;
+    private static Account currentAccount;
+    private static Admin currentAdmin;
     //Current role
     private static LoginEnums role = LoginEnums.NONE;
     //Account and admin lists
@@ -35,19 +35,34 @@ public class Main {
                     return;
                 }
                 //Call the login system for accounts
-                int tempUser;
+                Account tempUser;
                 try {
                     tempUser = LoginSystem.accountLogin(accounts);
                 }
                 catch (AccountLockedException e) {
-                    System.out.println(e.getMessage());
-                    int accountIndex = e.traceAccountIndex();
-                    String prevStatus = String.valueOf(accounts.get(accountIndex).getAccountStatus());
-                    if (accountIndex != -1) {
-                        accounts.get(accountIndex).setAccountStatus(AccountStatus.LOCKED);
+                    //Traces account
+                    Account account = e.traceAccount();
+                    String prevStatus;
+                    //If account isn't null
+                    if (account != null) {
+                        prevStatus = String.valueOf(account.getAccountStatus());
+                        //Locks account
+                        AccountLogic.lockAccount(account);
+                        //Prints error message
+                        System.out.println(e.getMessage());
+                        //Tells user duration of lock
+                        if (account.getDurationLocked() == Integer.MAX_VALUE) {
+                            System.out.println("Locked permanently.");
+                            break;
+                        }
+                        System.out.printf("Locked for: %d minutes.%n", account.getDurationLocked());
+                        LogManager.addLog(Action.ACCOUNT_AUTO_LOCKED, User.USER, String.format("%d (%s)", account.getAccountId(), account.getAccountHolder()), null, prevStatus, String.valueOf(account.getAccountStatus()));
+                        return;
+                    //If account is null
+                    } else {
+                        System.out.println(e.getMessage());
+                        break;
                     }
-                    LogManager.addLog(Action.ACCOUNT_AUTO_LOCKED, User.USER, String.format("%d (%s)", accounts.get(accountIndex).getAccountId(), accounts.get(accountIndex).getAccountHolder()), null, prevStatus, String.valueOf(accounts.get(accountIndex).getAccountStatus()));
-                    break;
                 }
                 catch (LoginFailedException e) {
                     System.out.println(e.getMessage());
@@ -55,11 +70,11 @@ public class Main {
                 }
                 //Login user if the above conditions aren't true
                 System.out.println("Login successful!");
+                currentAccount = tempUser;
                 //Welcome message
-                System.out.printf("Welcome back, %s!%n", accounts.get(tempUser).getAccountHolder());
+                System.out.printf("Welcome back, %s!%n", currentAccount.getAccountHolder());
                 //Role is set to user
                 role = LoginEnums.USER;
-                currentAccount = tempUser;
                 //End loop
                 break;
             }
@@ -85,8 +100,8 @@ public class Main {
                     break;
                 }
                 //If the admin is logged in successfully
-                currentAdmin = adminIndex;
-                System.out.printf("Welcome back %s!", admins.get(adminIndex).getAdminName());
+                currentAdmin = admins.get(adminIndex);
+                System.out.printf("Welcome back %s!", currentAdmin.getAdminName());
                 //Role is set
                 role = LoginEnums.ADMIN;
                 break;
@@ -108,15 +123,15 @@ public class Main {
             switch (option.toLowerCase()) {
                 case "view account info":
                     //Print account information
-                    accounts.get(currentAccount).printInfo();
+                    currentAccount.printInfo();
                     break;
                 case "deposit":
                     //Call deposit method
-                    AccountLogic.deposit(accounts.get(currentAccount));
+                    AccountLogic.deposit(currentAccount);
                     break;
                 case "withdraw":
                     //Call withdraw method
-                    AccountLogic.withdraw(accounts.get(currentAccount));
+                    AccountLogic.withdraw(currentAccount);
                     break;
                 case "transfer":
                     //Call transfer method
@@ -124,25 +139,25 @@ public class Main {
                     break;
                 case "view balance":
                     //Get user balance
-                    System.out.println("$" + accounts.get(currentAccount).getBalance());
+                    System.out.println("$" + currentAccount.getBalance());
                     break;
                 case "view history":
                     //Print account logs
-                    accounts.get(currentAccount).printHistory();
+                    currentAccount.printHistory();
                     break;
                 case "logout":
                     //Logs out the user
                     System.out.println("Logging out...");
                     //Sets user role to none
                     role = LoginEnums.NONE;
-                    currentAccount = -1;
+                    currentAccount = null;
                     return ControlFlow.MAIN_MENU;
                 case "change password":
                     //Call edit method
-                    Account newAcc = AccountLogic.editPassword(accounts.get(currentAccount));
+                    Account newAcc = AccountLogic.editPassword(currentAccount);
                     if (newAcc != null) {
                         //Check if the account isn't null
-                        accounts.set(currentAccount, newAcc);
+                        currentAccount = newAcc;
                     } else {
                         continue;
                     }
@@ -177,7 +192,7 @@ public class Main {
             while (true) {
                 //Gets the ID of the account to edit
                 int accountId = ProjectUtils.getValidInt("Enter the ID of the account you want to edit: ");
-                int accountIndex = -1;
+                int accountIndex;
                 try {
                     accountIndex = AccountLogic.loopThroughAccounts(accounts, accountId);
                 }
@@ -190,7 +205,7 @@ public class Main {
                     //Account editing options
                     Admin admin = null;
                     if (role == LoginEnums.ADMIN) {
-                        admin = admins.get(currentAdmin);
+                        admin = currentAdmin;
                     }
                     String whatToEdit = ProjectUtils.getValidString("Edit Holder, Edit Password, Edit Credit Score, Edit Account Status, Quit Editing");
                     switch (whatToEdit.toLowerCase()) {
@@ -252,7 +267,7 @@ public class Main {
                         return;
                     }
                     for (int i = 0; i < amountOfAdminsToEdit; i++) {
-                        int adminIndex = -1;
+                        int adminIndex;
                         while (true) {
                             //Gets the ID of the admin to edit
                             int adminId = ProjectUtils.getValidInt("Enter the ID of the admin you want to edit: ");
@@ -354,17 +369,21 @@ public class Main {
             try {
                 String option = ProjectUtils.getValidString("Print logs, Clear all logs, Quit managing.");
                 if (option.equalsIgnoreCase("print logs")) {
+                    //Prints logs
                     LogManager.printLogs();
                 } else if (option.equalsIgnoreCase("clear all logs")) {
+                    //Clears current arraylist and deletes file
+                    LogManager.clearLogs();
                     SaveData.clearLogs();
                 } else if (option.equalsIgnoreCase("quit managing")) {
                     return;
+                //Invalid input
                 } else {
                     System.out.println("Invalid option. Please try again.");
                 }
             }
             catch (Exception e) {
-                System.out.printf("An unexcepted error occurred: %s%n", e.getMessage());
+                System.out.printf("An unexpected error occurred: %s%n", e.getMessage());
             }
         }
     }
@@ -376,7 +395,7 @@ public class Main {
                 switch (option.toLowerCase()) {
                     case "add admins":
                         //Calls addAdmin method
-                        admins = AdminLogic.addAdmins(admins);
+                        AdminLogic.addAdmins(admins);
                         break;
                     case "delete admins":
                         //Calls deleteAdmin method
@@ -451,18 +470,14 @@ public class Main {
             else {
                 option = ProjectUtils.getValidString("Add Accounts, Delete Accounts, Edit accounts, Logout, Quit program");
             }
-            Admin admin = null;
-            if (role == LoginEnums.ADMIN) {
-                admin = admins.get(currentAdmin);
-            }
             switch (option.toLowerCase()) {
                 case "add accounts":
                     //Calls addAccount method
-                    accounts = AccountLogic.createAccount(accounts, admin);
+                    AccountLogic.createAccount(accounts, currentAdmin);
                     break;
                 case "delete accounts":
                     //Calls deleteAccount method
-                    ArrayList <Account> tempAccount = AccountLogic.deleteAccounts(accounts, admin);
+                    ArrayList <Account> tempAccount = AccountLogic.deleteAccounts(accounts, currentAdmin);
                     if (tempAccount != null) {
                         //Edits the accounts list only if tempAccount is not null
                         accounts = tempAccount;
@@ -477,7 +492,7 @@ public class Main {
                     System.out.println("Logging out...");
                     //Sets user role to none
                     role = LoginEnums.NONE;
-                    currentAdmin = -1;
+                    currentAdmin = null;
                     return ControlFlow.MAIN_MENU;
                 case "quit program":
                     System.out.println("Terminating program...");

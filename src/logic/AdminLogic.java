@@ -41,7 +41,7 @@ public class AdminLogic {
                     while (true) {
                         //Asks for the ID of the admin to delete
                         int adminId = ProjectUtils.getValidInt("Enter the ID of the admin you want to delete: ");
-                        int adminIndex = 0;
+                        int adminIndex;
                         try {
                             adminIndex = loopThroughAdmins(admins, adminId);
                         }
@@ -80,43 +80,39 @@ public class AdminLogic {
     }
     //RNG for admin ID
     private static final Random random = new Random();
-    public static ArrayList<Admin> addAdmins (ArrayList<Admin> admins) {
-        while (true) {
-            //Asks the number of admins to add
-            int amountOfAdmins = ProjectUtils.getValidInt("Enter the amount of admins you want to add: ");
-            //Validates input
-            if (amountOfAdmins == 0) {
-                System.out.println("No admins added.");
-                return admins;
-            }
-            for (int i = 0; i < amountOfAdmins; i++) {
-                //Gets the admin's name and password
-                String adminName = ProjectUtils.getValidString("Enter admin name:");
-                String tempAdminPassword = ProjectUtils.getValidPassword("Enter admin password:");
-                String adminPassword = ProjectUtils.hashPassword(tempAdminPassword);
-                //Generates a random admin ID
-                int adminId = random.nextInt(9999999 - 1000000 + 1) + 1000000;
-                //Checks if the ID is already taken
-                while (true) {
-                    try {
-                        loopThroughAdmins(admins, adminId);
-                    }
-                    catch (UserNotFoundException e) {
-                        break;
-                    }
-                    //Increments the ID and repeats the check
-                    adminId++;
-                    if (adminId > 9999999) {
-                        adminId = 1000000;
-                    }
+    public static void addAdmins (ArrayList<Admin> admins) {
+        //Asks the number of admins to add
+        int amountOfAdmins = ProjectUtils.getValidInt("Enter the amount of admins you want to add: ");
+        //Validates input
+        if (amountOfAdmins == 0) {
+            System.out.println("No admins added.");
+            return;
+        }
+        for (int i = 0; i < amountOfAdmins; i++) {
+            //Gets the admin's name and password
+            String adminName = ProjectUtils.getValidString("Enter admin name:");
+            String tempAdminPassword = ProjectUtils.getValidPassword("Enter admin password:");
+            String adminPassword = ProjectUtils.hashPassword(tempAdminPassword);
+            //Generates a random admin ID
+            int adminId = random.nextInt(9999999 - 1000000 + 1) + 1000000;
+            //Checks if the ID is already taken
+            while (true) {
+                try {
+                    loopThroughAdmins(admins, adminId);
                 }
-                //Prints the admin ID
-                System.out.println("Admin ID: " + adminId);
-                //Adds the admin to the admins list
-                admins.add(new Admin(adminId, adminName, adminPassword));
+                catch (UserNotFoundException e) {
+                    break;
+                }
+                //Increments the ID and repeats the check
+                adminId++;
+                if (adminId > 9999999) {
+                    adminId = 1000000;
+                }
             }
-            //Returns the updated admins list
-            return admins;
+            //Prints the admin ID
+            System.out.println("Admin ID: " + adminId);
+            //Adds the admin to the admins list
+            admins.add(new Admin(adminId, adminName, adminPassword));
         }
     }
 }

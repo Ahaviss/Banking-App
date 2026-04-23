@@ -1,5 +1,5 @@
 package logic;
-//Java imports
+//Local imports
 import database.*;
 import enums.AccountStatus;
 import enums.LoginEnums;
@@ -9,9 +9,10 @@ import logs.enums.Action;
 import logs.enums.User;
 import logs.manager.LogManager;
 import utilities.ProjectUtils;
-//Local imports
+//Java imports
 import java.util.Random;
 import java.util.ArrayList;
+import java.time.LocalDateTime;
 public class AccountLogic {
     //RNG for account ID
     private static final Random random = new Random();
@@ -69,18 +70,18 @@ public class AccountLogic {
             }
         }
     }
-    public static void transfer (ArrayList<Account> accounts, int sourceAccountIndex) {
+    public static void transfer (ArrayList<Account> accounts, Account currentAccount) {
         //Asks the user for the recipient ID and amount to transfer
         while (true) {
-            double prevBalance1 = accounts.get(sourceAccountIndex).getBalance();
+            double prevBalance1 = currentAccount.getBalance();
             int recipientAccountId = ProjectUtils.getValidInt("Enter the ID of the recipient account: ");
-            double transferAmount = ProjectUtils.getValidDouble(String.format("Enter the amount you want to transfer (%.2f available): ", accounts.get(sourceAccountIndex).getBalance()));
+            double transferAmount = ProjectUtils.getValidDouble(String.format("Enter the amount you want to transfer (%.2f available): ", currentAccount.getBalance()));
             //Validates amount to transfer
-            if (transferAmount > accounts.get(sourceAccountIndex).getBalance()) {
+            if (transferAmount > currentAccount.getBalance()) {
                 System.out.println("Insufficient balance.");
                 continue;
             }
-            int recipientIndex = 0;
+            int recipientIndex;
             try {
                 recipientIndex = loopThroughAccounts(accounts, recipientAccountId);
             }
@@ -90,12 +91,12 @@ public class AccountLogic {
             }
             double prevBalance2 = accounts.get(recipientIndex).getBalance();
             //Updates the balance
-            accounts.get(sourceAccountIndex).setBalance(accounts.get(sourceAccountIndex).getBalance() - transferAmount);
+            currentAccount.setBalance(currentAccount.getBalance() - transferAmount);
             accounts.get(recipientIndex).setBalance(accounts.get(recipientIndex).getBalance() + transferAmount);
             //Adds the transfer to history
-            accounts.get(sourceAccountIndex).addTransfer(new Transfer(transferAmount, recipientAccountId, accounts.get(sourceAccountIndex).getAccountId(), TransferDirection.OUTGOING));
-            accounts.get(recipientIndex).addTransfer(new Transfer(transferAmount, recipientAccountId, accounts.get(sourceAccountIndex).getAccountId(), TransferDirection.INCOMING));
-            LogManager.addLog(Action.TRANSFER, User.USER, String.format("%d (%s) -> %d (%s)", accounts.get(sourceAccountIndex).getAccountId(), accounts.get(sourceAccountIndex).getAccountHolder(), accounts.get(recipientIndex).getAccountId(), accounts.get(recipientIndex).getAccountHolder()), null, String.format("(Source) %.2f & (Recipient) %.2f", prevBalance1, prevBalance2), String.format("(Source) %.2f & (Recipient) %.2f", accounts.get(sourceAccountIndex).getBalance(), accounts.get(recipientIndex).getBalance()));
+            currentAccount.addTransfer(new Transfer(transferAmount, recipientAccountId, currentAccount.getAccountId(), TransferDirection.OUTGOING));
+            accounts.get(recipientIndex).addTransfer(new Transfer(transferAmount, recipientAccountId, currentAccount.getAccountId(), TransferDirection.INCOMING));
+            LogManager.addLog(Action.TRANSFER, User.USER, String.format("%d (%s) -> %d (%s)", currentAccount.getAccountId(), currentAccount.getAccountHolder(), accounts.get(recipientIndex).getAccountId(), accounts.get(recipientIndex).getAccountHolder()), null, String.format("(Source) %.2f & (Recipient) %.2f", prevBalance1, prevBalance2), String.format("(Source) %.2f & (Recipient) %.2f", currentAccount.getBalance(), accounts.get(recipientIndex).getBalance()));
             while (true) {
                 String answer = ProjectUtils.getValidString("Transfer successful. Do you want to make another transfer? Y/N");
                 if (answer.equalsIgnoreCase("Y")) {
@@ -142,7 +143,7 @@ public class AccountLogic {
 
         }
     }
-    public static ArrayList<Account> createAccount (ArrayList<Account> accounts, Admin admin) {
+    public static void createAccount (ArrayList<Account> accounts, Admin admin) {
         //Asks the user for the number of accounts to add
         int amountOfAccountToAdd = ProjectUtils.getValidInt("Enter the amount of accounts you want to add: ");
         //Gets account details
@@ -157,7 +158,6 @@ public class AccountLogic {
                 LogManager.addLog(Action.CREATE_ACCOUNT, User.ADMIN, String.format("%d (%s)", admin.getAdminId(), admin.getAdminName()), String.format("%d (%s)", tempAccount.getAccountId(), tempAccount.getAccountHolder()), "N/A", "N/A");
             }
         }
-        return accounts;
     }
     public static int loopThroughAccounts (ArrayList<Account> accounts, int accountId) throws UserNotFoundException {
         //Finds a specific account using the account ID
@@ -187,7 +187,7 @@ public class AccountLogic {
                     while (true) {
                         //Asks for the account ID to delete
                         int accountId = ProjectUtils.getValidInt("Enter the ID of the account you want to delete: ");
-                        int accountIndex = 0;
+                        int accountIndex;
                         try {
                             accountIndex = loopThroughAccounts(accounts, accountId);
                         }
@@ -282,8 +282,12 @@ public class AccountLogic {
                 String status = ProjectUtils.getValidString("Enter the new account status (active/locked): ");
                 if (status.equalsIgnoreCase("active")) {
                     account.setAccountStatus(AccountStatus.ACTIVE);
+                    account.setDurationLocked(0);
+                    account.setAccountLockedTime(null);
+                    account.setAmountOfTimesLocked(0);
                 } else if (status.equalsIgnoreCase("locked")) {
                     account.setAccountStatus(AccountStatus.LOCKED);
+                    account.setDurationLocked(Integer.MAX_VALUE);
                 } else {
                     System.out.println("Invalid input. Please enter 'active' or 'inactive'.");
                     continue;
@@ -333,6 +337,20 @@ public class AccountLogic {
             catch (Exception e) {
                 System.out.printf("An unexpected error occurred: %s%n", e.getMessage());
             }
+        }
+    }
+    public static void lockAccount (Account account) {
+        try {
+            if (account.getAmountOfTimesLocked() == 0) account.setDurationLocked(30);
+            else if (account.getAmountOfTimesLocked() == 1) account.setDurationLocked(60);
+            else if (account.getAmountOfTimesLocked() == 2) account.setDurationLocked(120);
+            else if (account.getAmountOfTimesLocked() >= 3) account.setDurationLocked(Integer.MAX_VALUE);
+            account.setAccountLockedTime(LocalDateTime.now());
+            account.setAccountStatus(AccountStatus.LOCKED);
+            account.setAmountOfTimesLocked(account.getAmountOfTimesLocked() + 1);
+        }
+        catch (Exception e) {
+            System.out.printf("An unexpected error occurred: %s%n", e.getMessage());
         }
     }
 }
