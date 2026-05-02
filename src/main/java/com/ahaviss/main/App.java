@@ -97,8 +97,8 @@ class App {
         }));
         int version = Runtime.version().feature();
         System.out.println("Version: JDK " + version);
-        if (version < 23) {
-            System.out.println("WARNING: This code is recommended for JDK 23 and above.");
+        if (version < 21) {
+            System.out.println("WARNING: This code is recommended for JDK 21 and above.");
         }
 
     }

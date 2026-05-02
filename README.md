@@ -34,7 +34,7 @@ This project serves as a practical application of advanced Java concepts:
 ## 💻 Getting Started
 
 ### Prerequisites
-* **Java Development Kit (JDK) 23** (recommended for compatibility) as before JDK 22 it will give a compile-time error in AccountLockedException.java.
+* **Java Development Kit (JDK) 21** (recommended for compatibility).
 * An IDE such as **IntelliJ IDEA**.
 
 ### How to Run

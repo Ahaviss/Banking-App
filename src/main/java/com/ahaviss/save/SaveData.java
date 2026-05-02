@@ -46,7 +46,7 @@ public class SaveData {
         return loadList(AUDIT_FILE, password, Log.class);
     }
     //Generic method to load data
-    private static <T> ArrayList<T> loadList(String filename, String password, Class type) throws Exception {
+    private static <T> ArrayList<T> loadList(String filename, String password, Class <T> type) throws Exception {
         File file = new File(filename);
         if (!file.exists()) return new ArrayList<>();
         String encrypted = Files.readString(file.toPath());

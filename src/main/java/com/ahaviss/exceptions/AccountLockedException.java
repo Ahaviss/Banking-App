@@ -5,13 +5,7 @@ import com.ahaviss.database.Account;
 public class AccountLockedException extends Exception {
     private Account account = null;
     public AccountLockedException(int accountID, int timeLeft) {
-        String message;
-        if (timeLeft == Integer.MAX_VALUE) {
-            message = String.format("Account is locked permanently. Please contact the bank for assistance.%nCause: %d is locked", accountID);
-        } else {
-            message = String.format("Account is locked for %d more minutes. Please contact the bank for assistance.%nCause: %d is locked", timeLeft, accountID);
-        }
-        super(message);
+        super(timeLeft == Integer.MAX_VALUE ? String.format("Account is locked permanently. Please contact the bank for assistance.%nCause: %d is locked", accountID) : String.format("Account is locked for %d more minutes. Please contact the bank for assistance.%nCause: %d is locked", timeLeft, accountID));
     }
     public AccountLockedException (Account account) {
         super(String.format("Account has been locked. Please contact the bank for assistance.%nCause: Repeated attempts on: %d", account.getAccountId()));
