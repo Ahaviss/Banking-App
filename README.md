@@ -71,6 +71,7 @@ To change the owner password:
 * * d) JSON is encrypted with AES-256.
 * MAJOR:
 * * a) Data is now saved in HashMaps instead of Arraylists, allowing for regular O(1) lookup times
-* * b) Files are saved in Maven resource folders, and added backup files in case main files are deleted. 
+* * b) Files are saved in Maven resource folders, and added backup files in case main files are deleted.
+* Added unit tests with JUnit.
 
 *Developed by Ahaviss - 2026*
