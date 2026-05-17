@@ -1,6 +1,7 @@
 package com.ahaviss.logic;
 
 import com.ahaviss.database.Account;
+import com.ahaviss.database.Admin;
 import com.ahaviss.enums.LoginEnums;
 import com.ahaviss.exceptions.AccountLockedException;
 import com.ahaviss.exceptions.LoginFailedException;
@@ -16,7 +17,7 @@ public class Logins {
         while (true) {
             try {
                 //Check if the accounts list is empty
-                if (!ProjectUtils.checkArrayList(Session.getAccounts())) {
+                if (!ProjectUtils.checkMap(Session.getAccounts())) {
                     System.out.println("No accounts available. Please create an account.");
                     return;
                 }
@@ -77,16 +78,16 @@ public class Logins {
         while (true) {
             try {
                 //Calls the login system for admins
-                int adminIndex = LoginSystem.adminLogin(Session.getAdmins(), Session.getOwner());
+                Admin admin = LoginSystem.adminLogin(Session.getAdmins(), Session.getOwner());
                 //If the admin was validated as the owner
-                if (adminIndex == Integer.MIN_VALUE) {
+                if (admin == null) {
                     System.out.println("Welcome back, owner!");
                     //Role is set
                     Session.setRole(LoginEnums.OWNER);
                     break;
                 }
                 //If the admin is logged in successfully
-                Session.setCurrentAdmin(Session.getAdmins().get(adminIndex));
+                Session.setCurrentAdmin(admin);
                 System.out.printf("Welcome back %s!%n", Session.getCurrentAdmin().getAdminName());
                 //Role is set
                 Session.setRole(LoginEnums.ADMIN);

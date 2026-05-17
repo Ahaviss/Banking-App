@@ -6,6 +6,8 @@ import com.ahaviss.enums.AccountStatus;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import java.time.LocalDateTime;
+import java.util.List;
+
 public class Account{
     //Private fields
     private LocalDateTime accountLockedTime;
@@ -18,9 +20,9 @@ public class Account{
     private AccountStatus accountStatus;
     private int creditScore;
     //ArrayLists for deposit, withdraw, and transfer history
-    private final ArrayList<Deposit> deposits = new ArrayList<>();
-    private final ArrayList<Withdraw> withdraws = new ArrayList<>();
-    private final ArrayList<Transfer> transfers = new ArrayList<>();
+    private final List<Deposit> deposits = new ArrayList<>();
+    private final List<Withdraw> withdraws = new ArrayList<>();
+    private final List<Transfer> transfers = new ArrayList<>();
     //Constructor for object creation
     @JsonCreator
     public Account(@JsonProperty("accountId") int accountId, @JsonProperty("accountHolder") String accountHolder, @JsonProperty("balance") double balance, @JsonProperty("accountPassword") String accountPassword, @JsonProperty("accountStatus") AccountStatus accountStatus, @JsonProperty("creditScore") int creditScore) {
@@ -57,17 +59,11 @@ public class Account{
         System.out.println("Account History:");
         System.out.println("Account ID: " + accountId);
         System.out.println("Deposits:");
-        for (Deposit deposit : deposits) {
-            deposit.printInfo();
-        }
+        deposits.forEach(Deposit::printInfo);
         System.out.println("Withdraws:");
-        for (Withdraw withdraw : withdraws) {
-            withdraw.printInfo();
-        }
+        withdraws.forEach(Withdraw::printInfo);
         System.out.println("Transfers:");
-        for (Transfer transfer : transfers) {
-            transfer.printInfo();
-        }
+        transfers.forEach(Transfer::printInfo);
     }
     //Prints the account information
     public void printInfo() {

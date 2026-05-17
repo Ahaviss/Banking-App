@@ -9,7 +9,7 @@ import com.ahaviss.session.Session;
 import com.ahaviss.utilities.ProjectUtils;
 import com.ahaviss.utilities.SecurityUtils;
 
-import java.util.ArrayList;
+import java.util.Map;
 
 public class OwnerMenus {
     public static void editOwner () {
@@ -65,7 +65,7 @@ public class OwnerMenus {
                         break;
                     case "delete admins":
                         //Calls deleteAdmin method
-                        ArrayList<Admin> tempAdmins = AdminLogic.deleteAdmins(Session.getAdmins());
+                        Map<Integer, Admin> tempAdmins = AdminLogic.deleteAdmins(Session.getAdmins());
                         if (tempAdmins != null) {
                             //Edits the admin list only if tempAdmins is not null
                             Session.setAdmins(tempAdmins);

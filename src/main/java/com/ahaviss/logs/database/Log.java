@@ -35,7 +35,7 @@ public class Log {
         this.before = before;
         this.after = after;
     }
-    public Log (@JsonProperty("action") Action action, @JsonProperty("user") User user, @JsonProperty("source") String source, @JsonProperty("destination") String destination, @JsonProperty("before") String before, @JsonProperty("after") String after) {
+    public Log (Action action, User user, String source, String destination, String before, String after) {
         timeStamp = LocalDateTime.now();
         this.action = action;
         this.user = user;
@@ -45,7 +45,7 @@ public class Log {
         this.after = after;
     }
     @JsonCreator
-     Log (@JsonProperty("timeStamp") LocalDateTime timeStamp, @JsonProperty("action") Action action, @JsonProperty("user") User user, @JsonProperty("source") String source, @JsonProperty("destination") String destination, @JsonProperty("before") String before, @JsonProperty("after") String after) {
+    Log (@JsonProperty("timeStamp") LocalDateTime timeStamp, @JsonProperty("action") Action action, @JsonProperty("user") User user, @JsonProperty("source") String source, @JsonProperty("destination") String destination, @JsonProperty("before") String before, @JsonProperty("after") String after) {
         this.timeStamp = timeStamp;
         this.action = action;
         this.user = user;

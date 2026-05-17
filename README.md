@@ -65,10 +65,12 @@ To change the owner password:
 * Added control flow to avoid System.exit(0).
 * MAJOR: Added time-based account lockouts instead of permanent lockouts
 * MAJOR:
-* a) Moved build tool to Maven.
-* b) Using JSON via Jackson to save data instead of serialization
-* c) Hashing passwords now includes a salt.
-* d) JSON is encrypted with AES-256.
----
+* * a) Moved build tool to Maven.
+* * b) Using JSON via Jackson to save data instead of serialization
+* * c) Hashing passwords now includes a salt.
+* * d) JSON is encrypted with AES-256.
+* MAJOR:
+* * a) Data is now saved in HashMaps instead of Arraylists, allowing for regular O(1) lookup times
+* * b) Files are saved in Maven resource folders, and added backup files in case main files are deleted. 
 
 *Developed by Ahaviss - 2026*

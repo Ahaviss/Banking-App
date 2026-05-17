@@ -12,6 +12,8 @@ import com.ahaviss.save.SaveData;
 import com.ahaviss.session.Session;
 import com.ahaviss.utilities.ProjectUtils;
 
+import javax.crypto.AEADBadTagException;
+
 class App {
     void loadData () {
         String password = ProjectUtils.getValidString("Password:");
@@ -22,8 +24,14 @@ class App {
             Session.setOwner(SaveData.loadOwnerData(password));
             LogManager.loadLogs(SaveData.loadAuditData(password));
         }
+        catch (AEADBadTagException e) {
+            System.out.println("Critical Error: Cause: Key mismatched or files corrupted/tampered");
+            Session.setKillswitch(true);
+            System.exit(1);
+        }
         catch (Exception e) {
-            System.out.println("Critical Error: Key corrupted or mismatched");
+            System.out.println("Fatal Error: Cause: " + e.getMessage());
+            e.printStackTrace();
             Session.setKillswitch(true);
             System.exit(1);
         }
@@ -67,7 +75,7 @@ class App {
                     //Calls the createAccount method
                     Account account = AccountLogic.createOneAccount(Session.getAccounts());
                     //Stores the account in the accounts list
-                    Session.getAccounts().add(account);
+                    Session.getAccounts().put(account.getAccountId(), account);
                 } else if (answer.equalsIgnoreCase("quit")) {
                     System.out.println("Terminating program...");
                     //Ends the program

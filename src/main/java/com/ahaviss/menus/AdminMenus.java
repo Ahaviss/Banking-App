@@ -4,13 +4,12 @@ import com.ahaviss.database.Account;
 import com.ahaviss.database.Admin;
 import com.ahaviss.enums.ControlFlow;
 import com.ahaviss.enums.LoginEnums;
-import com.ahaviss.exceptions.UserNotFoundException;
 import com.ahaviss.logic.AccountLogic;
 import com.ahaviss.logic.AdminLogic;
 import com.ahaviss.session.Session;
 import com.ahaviss.utilities.ProjectUtils;
 
-import java.util.ArrayList;
+import java.util.Map;
 
 public class AdminMenus {
     public static void editAdmin () {
@@ -19,7 +18,7 @@ public class AdminMenus {
             try {
                 while (true) {
                     //Checks admin list
-                    if (!ProjectUtils.checkArrayList(Session.getAdmins())) {
+                    if (!ProjectUtils.checkMap(Session.getAdmins())) {
                         System.out.println("No admins available. Please create an admin.");
                         return;
                     }
@@ -33,16 +32,14 @@ public class AdminMenus {
                         return;
                     }
                     for (int i = 0; i < amountOfAdminsToEdit; i++) {
-                        int adminIndex;
+                        Admin admin;
                         while (true) {
                             //Gets the ID of the admin to edit
                             int adminId = ProjectUtils.getValidInt("Enter the ID of the admin you want to edit: ");
-                            try {
-                                adminIndex = AdminLogic.loopThroughAdmins(Session.getAdmins(), adminId);
-                            }
-                            //If admin not found
-                            catch (UserNotFoundException e) {
-                                System.out.println(e.getMessage());
+                            admin = Session.getAdmins().get(adminId);
+                            //Checks if admin is found
+                            if (admin == null) {
+                                System.out.printf("Admin ID %d not found", adminId);
                                 continue;
                             }
                             break;
@@ -54,13 +51,11 @@ public class AdminMenus {
                             switch (option.toLowerCase()) {
                                 case "edit name":
                                     //Calls editAdminName method
-                                    Admin tempAdmin = AdminLogic.editAdminName(Session.getAdmins().get(adminIndex));
-                                    Session.getAdmins().set(adminIndex, tempAdmin);
+                                    AdminLogic.editAdminName(admin);
                                     break;
                                 case "edit password":
                                     //Calls editPassword method
-                                    Admin tempAdmin2 = AdminLogic.editPassword(Session.getAdmins().get(adminIndex));
-                                    Session.getAdmins().set(adminIndex, tempAdmin2);
+                                    AdminLogic.editPassword(admin);
                                     break;
                                 case "quit editing":
                                     //Returns to the main menu
@@ -112,10 +107,10 @@ public class AdminMenus {
                     break;
                 case "delete accounts":
                     //Calls deleteAccount method
-                    ArrayList <Account> tempAccount = AccountLogic.deleteAccounts(Session.getAccounts(), Session.getCurrentAdmin());
-                    if (tempAccount != null) {
+                    Map<Integer, Account> tempAccounts = AccountLogic.deleteAccounts(Session.getAccounts(), Session.getCurrentAdmin());
+                    if (tempAccounts != null) {
                         //Edits the accounts list only if tempAccount is not null
-                        Session.setAccounts(tempAccount);
+                        Session.setAccounts(tempAccounts);
                     }
                     break;
                 case "edit accounts":

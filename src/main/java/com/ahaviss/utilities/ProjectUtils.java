@@ -4,14 +4,21 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.Map;
+
 public class ProjectUtils {
-    private static final BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    private static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
     public static int getValidInt (String prompt) {
         while (true) {
             try {
                 //Prints the given prompt
                 System.out.println(prompt);
-                int input = Integer.parseInt(br.readLine());
+                String tempInput = br.readLine().trim();
+                if (tempInput == null || tempInput.isBlank()) {
+                    System.out.println("Invalid input. Please enter a non-empty number.");
+                    continue;
+                }
+                int input = Integer.parseInt(tempInput);
                 //Checks if the input is positive
                 if (input < 0) {
                     System.out.println("Invalid input. Please enter a positive integer.");
@@ -46,9 +53,9 @@ public class ProjectUtils {
             try {
                 //Prints the given prompt
                 System.out.println(prompt);
-                String input = br.readLine();
+                String input = br.readLine().trim();
                 //Checks if the input is empty
-                if (input.isEmpty()) {
+                if (input == null || input.isBlank()) {
                     System.out.println("Invalid input. Please enter a non-empty sentence/word.");
                     continue;
                 }
@@ -67,7 +74,12 @@ public class ProjectUtils {
             try {
                 //Prints the given prompt
                 System.out.println(prompt);
-                double input = Double.parseDouble(br.readLine());
+                String tempInput = br.readLine().trim();
+                if (tempInput == null || tempInput.isBlank()) {
+                    System.out.println("Invalid input. Please enter a non-empty number.");
+                    continue;
+                }
+                double input = Double.parseDouble(tempInput);
                 //Checks if the input is positive and hasn't overflowed
                 if (input < 0 || Double.isNaN(input) || !Double.isFinite(input)) {
                     System.out.println("Invalid input. Please enter a positive number.");
@@ -92,8 +104,7 @@ public class ProjectUtils {
                 //Prints the given prompt
                 System.out.println(prompt);
                 //Tells the user the password requirements
-                System.out.println("Password must be 8 characters long and contain at least one uppercase letter,\none lowercase letter and one number");
-                String password = br.readLine();
+                String password = getValidString("Password must be 8 characters long and contain at least one uppercase letter,\none lowercase letter and one number");
                 //Checks the password length
                 if (password.length() < 8) {
                     System.out.println("Invalid password. Password must be 8 characters long.");
@@ -127,9 +138,6 @@ public class ProjectUtils {
                 }
             }
             //Catch invalid input
-            catch (IOException e) {
-                System.out.println("Invalid input: " + e.getMessage());
-            }
             catch (Exception e) {
                 System.out.printf("An unexpected error occurred: %s%n", e.getMessage());
             }
@@ -146,4 +154,12 @@ public class ProjectUtils {
     }
     //Generic method to check if an arraylist is empty
     public static <T> boolean checkArrayList (ArrayList<T> arrayList) {return !arrayList.isEmpty();}
+    public static <T> boolean checkMap (Map<Integer, T> map) {return !map.isEmpty();}
+    //Test purposes only (Removable)
+    public static void resetReader() {
+        br = new BufferedReader(new InputStreamReader(System.in));
+    }
+    public static void setReader (BufferedReader newBr) {
+        br = newBr;
+    }
 }

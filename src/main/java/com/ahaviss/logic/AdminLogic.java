@@ -1,28 +1,15 @@
 package com.ahaviss.logic;
 //Local imports
 import com.ahaviss.database.Admin;
-import com.ahaviss.enums.LoginEnums;
-import com.ahaviss.exceptions.UserNotFoundException;
 import com.ahaviss.utilities.ProjectUtils;
 import com.ahaviss.utilities.SecurityUtils;
 //Java imports
+import java.util.Map;
 import java.util.Random;
-import java.util.ArrayList;
 public class AdminLogic {
-    //Loops through the admins to find a specific admin
-    public static int loopThroughAdmins (ArrayList<Admin> admins, int adminId) throws UserNotFoundException {
-        for (int i = 0; i < admins.size(); i++) {
-            if (admins.get(i).getAdminId() == adminId) {
-                //Returns the index
-                return i;
-            }
-        }
-        //If not found
-        throw new UserNotFoundException(LoginEnums.ADMIN, String.format("Admin ID %d not found.", adminId));
-    }
-    public static ArrayList<Admin> deleteAdmins (ArrayList<Admin> admins) {
+    public static Map<Integer, Admin> deleteAdmins (Map<Integer, Admin> admins) {
         //Checks if the admins list is empty
-        if (!ProjectUtils.checkArrayList(admins)) {
+        if (!ProjectUtils.checkMap(admins)) {
             System.out.println("No admins available. Please create an admin.");
             return null;
         }
@@ -42,17 +29,13 @@ public class AdminLogic {
                     while (true) {
                         //Asks for the ID of the admin to delete
                         int adminId = ProjectUtils.getValidInt("Enter the ID of the admin you want to delete: ");
-                        int adminIndex;
-                        try {
-                            adminIndex = loopThroughAdmins(admins, adminId);
-                        }
                         //Checks if the admin is found
-                        catch (UserNotFoundException e) {
-                            System.out.println("Admin not found.");
+                        if (!admins.containsKey(adminId)) {
+                            System.out.printf("Admin ID %d not found.%n", adminId);
                             continue;
                         }
                         //Removes the admin
-                        admins.remove(adminIndex);
+                        admins.remove(adminId);
                         System.out.println("Admin deleted successfully!");
                         break;
                     }
@@ -66,22 +49,20 @@ public class AdminLogic {
             }
         }
     }
-    public static Admin editPassword (Admin admin) {
+    public static void editPassword (Admin admin) {
         //Gets a valid password, sets it to the admin and returns it
         String tempNewPassword = ProjectUtils.getValidPassword("Enter the new password: ");
         String newPassword = SecurityUtils.hashPassword(tempNewPassword, SecurityUtils.generateSalt());
         admin.setAdminPassword(newPassword);
-        return admin;
     }
-    public static Admin editAdminName (Admin admin) {
+    public static void editAdminName (Admin admin) {
         //Gets a valid name, sets it to the admin and returns it
         String newName = ProjectUtils.getValidString("Enter the new admin name: ");
         admin.setAdminName(newName);
-        return admin;
     }
     //RNG for admin ID
     private static final Random random = new Random();
-    public static void addAdmins (ArrayList<Admin> admins) {
+    public static void addAdmins (Map<Integer, Admin> admins) {
         //Asks the number of admins to add
         int amountOfAdmins = ProjectUtils.getValidInt("Enter the amount of admins you want to add: ");
         //Validates input
@@ -97,13 +78,7 @@ public class AdminLogic {
             //Generates a random admin ID
             int adminId = random.nextInt(9999999 - 1000000 + 1) + 1000000;
             //Checks if the ID is already taken
-            while (true) {
-                try {
-                    loopThroughAdmins(admins, adminId);
-                }
-                catch (UserNotFoundException e) {
-                    break;
-                }
+            while (admins.containsKey(adminId)) {
                 //Increments the ID and repeats the check
                 adminId++;
                 if (adminId > 9999999) {
@@ -113,7 +88,7 @@ public class AdminLogic {
             //Prints the admin ID
             System.out.println("Admin ID: " + adminId);
             //Adds the admin to the admins list
-            admins.add(new Admin(adminId, adminName, adminPassword));
+            admins.put(adminId, new Admin(adminId, adminName, adminPassword));
         }
     }
 }

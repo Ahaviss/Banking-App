@@ -4,7 +4,6 @@ import com.ahaviss.database.Account;
 import com.ahaviss.database.Admin;
 import com.ahaviss.enums.ControlFlow;
 import com.ahaviss.enums.LoginEnums;
-import com.ahaviss.exceptions.UserNotFoundException;
 import com.ahaviss.logic.AccountLogic;
 import com.ahaviss.session.Session;
 import com.ahaviss.utilities.ProjectUtils;
@@ -69,7 +68,7 @@ public class AccountMenus {
     }
     public static void editAccount () {
         //Checks if the accounts list is empty
-        if (!ProjectUtils.checkArrayList(Session.getAccounts())) {
+        if (!ProjectUtils.checkMap(Session.getAccounts())) {
             System.out.println("No accounts available. Please create an account.");
             return;
         }
@@ -79,7 +78,7 @@ public class AccountMenus {
         if (amountOfAccountToEdit > Session.getAccounts().size()) {
             System.out.println("Invalid input. Please enter a number less than or equal to the number of accounts.");
             return;
-        } else if (amountOfAccountToEdit ==0) {
+        } else if (amountOfAccountToEdit == 0) {
             System.out.println("No accounts edited.");
             return;
         }
@@ -87,13 +86,10 @@ public class AccountMenus {
             while (true) {
                 //Gets the ID of the account to edit
                 int accountId = ProjectUtils.getValidInt("Enter the ID of the account you want to edit: ");
-                int accountIndex;
-                try {
-                    accountIndex = AccountLogic.loopThroughAccounts(Session.getAccounts(), accountId);
-                }
-                //If the account isn't found
-                catch (UserNotFoundException e) {
-                    System.out.println(e.getMessage());
+                Account account = Session.getAccounts().get(accountId);
+                //Checks if account is found
+                if (account == null) {
+                    System.out.printf("Account ID %d not found.%n", accountId);
                     continue;
                 }
                 while (true) {
@@ -106,23 +102,19 @@ public class AccountMenus {
                     switch (whatToEdit.toLowerCase()) {
                         case "edit holder":
                             //Call editAccountHolder method
-                            Account tempAccount = AccountLogic.editAccountHolder(Session.getAccounts().get(accountIndex), admin);
-                            Session.getAccounts().set(accountIndex, tempAccount);
+                            AccountLogic.editAccountHolder(account, admin);
                             break;
                         case "edit password":
                             //Call editPassword method
-                            Account tempAccount2 = AccountLogic.editPasswordAdmin(Session.getAccounts().get(accountIndex), admin);
-                            Session.getAccounts().set(accountIndex, tempAccount2);
+                            AccountLogic.editPasswordAdmin(account, admin);
                             break;
                         case "edit credit score":
                             //Call editCreditScore method
-                            Account tempAccount3 = AccountLogic.editCreditScore(Session.getAccounts().get(accountIndex), admin);
-                            Session.getAccounts().set(accountIndex, tempAccount3);
+                            AccountLogic.editCreditScore(account, admin);
                             break;
                         case "edit account status":
                             //Call editAccountStatus method
-                            Account tempAccount4 = AccountLogic.editAccountStatus(Session.getAccounts().get(accountIndex), admin);
-                            Session.getAccounts().set(accountIndex, tempAccount4);
+                            AccountLogic.editAccountStatus(account, admin);
                             break;
                         case "quit editing":
                             //Return to the main menu
