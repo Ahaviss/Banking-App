@@ -22,6 +22,7 @@ public class Transfer implements Printable {
     public void printInfo () {
         System.out.printf("Target Account ID: %d%nSource Account ID: %d%nAmount Transferred: %.2f%n%s%n", targetAccountId, sourceAccountId, amountTransferred, direction);
     }
+    public TransferDirection getDirection() {return direction;}
     public double getAmountTransferred() {return amountTransferred;}
     public int getTargetAccountId() {return targetAccountId;}
     public int getSourceAccountId() {return sourceAccountId;}

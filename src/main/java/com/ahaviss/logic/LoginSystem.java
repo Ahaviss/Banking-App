@@ -94,7 +94,8 @@ public class LoginSystem {
             //Checks if the input matches the current admin being checked
             int adminIdInt = Integer.parseInt(adminId);
             Admin admin = admins.get(adminIdInt);
-            if (admin != null) return admin;
+            if (admin != null && SecurityUtils.verifyPassword(adminPassword, admin.getAdminPassword())) return admin;
+            System.out.println("Invalid admin ID or password. Please try again.");
         }
         //If attempts are exceeded
         System.out.println("Unauthorised access. Defaulting...");
