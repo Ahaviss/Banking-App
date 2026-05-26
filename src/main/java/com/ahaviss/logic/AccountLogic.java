@@ -18,52 +18,56 @@ public class AccountLogic {
     private final ProjectUtils projectUtils;
     public AccountLogic (ProjectUtils projectUtils) {this.projectUtils = projectUtils;}
     public void withdraw (Account account) {
+        double prevBalance = account.getBalance();
+        //Asks for the withdrawal amount
+        double withdrawAmount = projectUtils.getValidDouble(String.format("Enter the amount you want to withdraw (%.2f available): ", account.getBalance()));
+        //Validates the withdrawal amount
+        if (withdrawAmount > account.getBalance()) {
+            System.out.println("Insufficient balance.");
+            return;
+        }
+        if (withdrawAmount == 0) {
+            System.out.println("No money taken out");
+            return;
+        }
+        //Sets user balance
+        account.setBalance(account.getBalance() - withdrawAmount);
+        //Adds the withdrawal to history
+        account.addWithdraw(new Withdraw(withdrawAmount, account.getAccountId()));
+        LogManager.addLog(Action.WITHDRAW, User.USER, String.format("%d (%s)", account.getAccountId(), account.getAccountHolder()), null, String.valueOf(prevBalance), String.valueOf(account.getBalance()));
         while (true) {
-            double prevBalance = account.getBalance();
-            //Asks for the withdrawal amount
-            double withdrawAmount = projectUtils.getValidDouble(String.format("Enter the amount you want to withdraw (%.2f available): ", account.getBalance()));
-            //Validates the withdrawal amount
-            if (withdrawAmount > account.getBalance()) {
-                System.out.println("Insufficient balance.");
+            //Asks if the user wants to make another withdrawal
+            String answer = projectUtils.getValidString("Withdrawal successful. Do you want to make another withdrawal? Y/N");
+            if (answer.equalsIgnoreCase("N")) {
                 return;
-            }
-            //Sets user balance
-            account.setBalance(account.getBalance() - withdrawAmount);
-            //Adds the withdrawal to history
-            account.addWithdraw(new Withdraw(withdrawAmount, account.getAccountId()));
-            LogManager.addLog(Action.WITHDRAW, User.USER, String.format("%d (%s)", account.getAccountId(), account.getAccountHolder()), null, String.valueOf(prevBalance), String.valueOf(account.getBalance()));
-            while (true) {
-                //Asks if the user wants to make another withdrawal
-                String answer = projectUtils.getValidString("Withdrawal successful. Do you want to make another withdrawal? Y/N");
-                if (answer.equalsIgnoreCase("N")) {
-                    return;
-                } else if (answer.equalsIgnoreCase("Y")) {
-                    break;
-                } else {
-                    System.out.println("Invalid input. Please enter Y or N.");
-                }
+            } else if (answer.equalsIgnoreCase("Y")) {
+                break;
+            } else {
+                System.out.println("Invalid input. Please enter Y or N.");
             }
         }
     }
     public void deposit (Account account) {
+        //Asks for the deposit amount
+        double prevBalance = account.getBalance();
+        double depositAmount = projectUtils.getValidDouble("Enter the amount you want to deposit: ");
+        if (depositAmount == 0) {
+            System.out.println("No money added");
+            return;
+        }
+        account.setBalance(account.getBalance() + depositAmount);
+        //Adds the deposit to history
+        account.addDeposit(new Deposit(depositAmount, account.getAccountId()));
+        LogManager.addLog(Action.DEPOSIT, User.USER, String.format("%d (%s)", account.getAccountId(), account.getAccountHolder()), null, String.valueOf(prevBalance), String.valueOf(account.getBalance()));
+        //Asks if the user wants to make another deposit
         while (true) {
-            //Asks for the deposit amount
-            double prevBalance = account.getBalance();
-            double depositAmount = projectUtils.getValidDouble("Enter the amount you want to deposit: ");
-            account.setBalance(account.getBalance() + depositAmount);
-            //Adds the deposit to history
-            account.addDeposit(new Deposit(depositAmount, account.getAccountId()));
-            LogManager.addLog(Action.DEPOSIT, User.USER, String.format("%d (%s)", account.getAccountId(), account.getAccountHolder()), null, String.valueOf(prevBalance), String.valueOf(account.getBalance()));
-            //Asks if the user wants to make another deposit
-            while (true) {
-                String answer = projectUtils.getValidString("Deposit successful. Do you want to make another deposit? Y/N");
-                if (answer.equalsIgnoreCase("Y")) {
-                    break;
-                } else if (answer.equalsIgnoreCase("N")) {
-                    return;
-                } else {
-                    System.out.println("Invalid input. Please enter Y or N.");
-                }
+            String answer = projectUtils.getValidString("Deposit successful. Do you want to make another deposit? Y/N");
+            if (answer.equalsIgnoreCase("Y")) {
+                break;
+            } else if (answer.equalsIgnoreCase("N")) {
+                return;
+            } else {
+                System.out.println("Invalid input. Please enter Y or N.");
             }
         }
     }
@@ -72,7 +76,15 @@ public class AccountLogic {
         while (true) {
             double prevBalance1 = currentAccount.getBalance();
             int recipientAccountId = projectUtils.getValidInt("Enter the ID of the recipient account: ");
+            if (recipientAccountId == currentAccount.getAccountId()) {
+                System.out.println("You cannot transfer money to yourself.");
+                return;
+            }
             double transferAmount = projectUtils.getValidDouble(String.format("Enter the amount you want to transfer (%.2f available): ", currentAccount.getBalance()));
+            if (transferAmount == 0) {
+                System.out.println("No money transferred");
+                return;
+            }
             //Validates amount to transfer
             if (transferAmount > currentAccount.getBalance()) {
                 System.out.println("Insufficient balance.");

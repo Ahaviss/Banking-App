@@ -22,6 +22,7 @@ public class SaveData {
         mapper.registerModule(new JavaTimeModule());
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
+    private final ProjectUtils projectUtils;
     private static final String fileSeparator = java.io.File.separator;
     private static final String ACCOUNTS_FILE = "src" + fileSeparator + "main" + fileSeparator + "resources" + fileSeparator + "accounts.enc";
     private static final String ADMINS_FILE   = "src" + fileSeparator + "main" + fileSeparator + "resources" + fileSeparator + "admins.enc";
@@ -31,6 +32,7 @@ public class SaveData {
     private static final String BACKUP_ADMINS_FILE   = "src" + fileSeparator + "main" + fileSeparator + "backup-resources" + fileSeparator + "admins.enc";
     private static final String BACKUP_OWNER_FILE    = "src" + fileSeparator + "main" + fileSeparator + "backup-resources" + fileSeparator + "owner.enc";
     private static final String BACKUP_AUDIT_FILE    = "src" + fileSeparator + "main" + fileSeparator + "backup-resources" + fileSeparator + "auditLogs.enc";
+    public SaveData (ProjectUtils projectUtils) {this.projectUtils = projectUtils;}
     //Loads account data
     public static Map<Integer, Account> loadAccountData (String password) throws Exception {
         if (!new File(ACCOUNTS_FILE).exists() && new File(BACKUP_ACCOUNTS_FILE).exists()) {
@@ -102,7 +104,7 @@ public class SaveData {
         saveSpecificData(admins, new File(ADMINS_FILE), new File(BACKUP_ADMINS_FILE), "admins");
         saveSpecificData(owner, new File(OWNER_FILE), new File(BACKUP_OWNER_FILE), "owner");
         saveSpecificData(accounts, new File(ACCOUNTS_FILE), new File(BACKUP_ACCOUNTS_FILE), "accounts");
-        saveSpecificData(logs, new File(AUDIT_FILE), new File(BACKUP_AUDIT_FILE), "owner");
+        saveSpecificData(logs, new File(AUDIT_FILE), new File(BACKUP_AUDIT_FILE), "audit");
     }
     //To delete logs file
     public static void clearLogs () {
@@ -119,57 +121,29 @@ public class SaveData {
             System.err.println("Error clearing logs: " + e.getMessage());
         }
     }
-
+    public void deleteFiles (File primaryFile, File backupFile, String dataType) {
+        if (primaryFile.exists()) {
+            boolean del = primaryFile.delete();
+            if (!del) System.out.println("Delete failed for " + dataType);
+        }
+        if (backupFile.exists()) {
+            boolean del = backupFile.delete();
+            if (!del) System.out.println("Delete failed for backup " + dataType);
+        }
+    }
     //Killswitch for owner
-    public static boolean killswitch () {
+    public boolean killswitch () {
         while (true) {
             try {
                 //Confirms with user
                 System.out.println("Are you sure you want to turn on the killswitch?");
                 System.out.println("This will delete all data and terminate the program.");
-                String option = new ProjectUtils(new BufferedReader(new InputStreamReader(System.in))).getValidString("Y/N");
+                String option = projectUtils.getValidString("Y/N");
                 if (option.equalsIgnoreCase("y")) {
-                    File delete1 = new File(ACCOUNTS_FILE);
-                    File delete2 = new File(ADMINS_FILE);
-                    File delete3 = new File(OWNER_FILE);
-                    File delete4 = new File(AUDIT_FILE);
-                    File backupDelete1 = new File(BACKUP_ACCOUNTS_FILE);
-                    File backupDelete2 = new File(BACKUP_ADMINS_FILE);
-                    File backupDelete3 = new File(BACKUP_OWNER_FILE);
-                    File backupDelete4 = new File(BACKUP_AUDIT_FILE);
-                    //Deletes all files
-                    if (delete1.exists()) {
-                        boolean del = delete1.delete();
-                        if (!del) System.out.println("Delete failed for account data.");
-                    }
-                    if (delete2.exists()) {
-                        boolean del = delete2.delete();
-                        if (!del) System.out.println("Delete failed for admin data.");
-                    }
-                    if (delete3.exists()) {
-                        boolean del = delete3.delete();
-                        if (!del) System.out.println("Delete failed for owner data.");
-                    }
-                    if (delete4.exists()) {
-                        boolean del = delete4.delete();
-                        if (!del) System.out.println("Delete failed for audit logs data.");
-                    }
-                    if (backupDelete1.exists()) {
-                        boolean del = backupDelete1.delete();
-                        if (!del) System.out.println("Delete failed for backup accounts data.");
-                    }
-                    if (backupDelete2.exists()) {
-                        boolean del = backupDelete2.delete();
-                        if (!del) System.out.println("Delete failed for backup admins data.");
-                    }
-                    if (backupDelete3.exists()) {
-                        boolean del = backupDelete3.delete();
-                        if (!del) System.out.println("Delete failed for backup owner data.");
-                    }
-                    if (backupDelete4.exists()) {
-                        boolean del = backupDelete4.delete();
-                        if (!del) System.out.println("Delete failed for backup audit logs data.");
-                    }
+                    deleteFiles(new File(ACCOUNTS_FILE), new File(BACKUP_ACCOUNTS_FILE), "accounts");
+                    deleteFiles(new File(ADMINS_FILE), new File(BACKUP_ADMINS_FILE), "admins");
+                    deleteFiles(new File(OWNER_FILE), new File(BACKUP_OWNER_FILE), "owner");
+                    deleteFiles(new File(AUDIT_FILE), new File(BACKUP_AUDIT_FILE), "audit");
                     return true;
                 }
                 else if (option.equalsIgnoreCase("n")) return false;

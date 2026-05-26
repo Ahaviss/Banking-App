@@ -95,7 +95,7 @@ public class OwnerMenus {
                         return ControlFlow.QUIT;
                     case "killswitch":
                         //Assigns killswitch to true
-                        if (SaveData.killswitch()) {
+                        if (new SaveData(projectUtils).killswitch()) {
                             Session.setKillswitch(true);
                             //Terminates the JVM
                             System.exit(0);
