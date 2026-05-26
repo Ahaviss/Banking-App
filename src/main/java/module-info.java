@@ -4,9 +4,9 @@ module Banking.App {
     requires com.fasterxml.jackson.annotation;
     requires com.fasterxml.jackson.databind;
     requires com.fasterxml.jackson.datatype.jsr310;
+    requires org.bouncycastle.provider;
     //Basic
     requires java.base;
-    requires org.bouncycastle.provider;
     //Allowing reflection
     exports com.ahaviss.enums to com.fasterxml.jackson.databind;
     exports com.ahaviss.logs.enums to com.fasterxml.jackson.databind;

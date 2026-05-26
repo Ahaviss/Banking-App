@@ -14,14 +14,16 @@ import java.util.Map;
 
 public class LoginSystem {
     //Total tries
-    public static Account accountLogin (Map<Integer, Account> accounts) throws AccountLockedException, LoginFailedException {
+    private final ProjectUtils projectUtils;
+    public LoginSystem (ProjectUtils projectUtils) {this.projectUtils = projectUtils;}
+    public Account accountLogin (Map<Integer, Account> accounts) throws AccountLockedException, LoginFailedException {
         //Arrays to track if the same username is targeted multiple times
         int[] foundUsernames = new int[3];
         for (int i = 0; i < 3; i++) {
             System.out.printf("Login attempt %d/3%n", i + 1);
             //Gets the account ID and password
-            String tempAccountId = ProjectUtils.getValidString("Enter your account ID: ");
-            String accountPassword = ProjectUtils.getValidString("Enter your account password: ");
+            String tempAccountId = projectUtils.getValidString("Enter your account ID: ");
+            String accountPassword = projectUtils.getValidString("Enter your account password: ");
             //Checks if the ID is a number
             boolean isNumber = tempAccountId.matches("\\d+");
             if (!isNumber) {
@@ -75,12 +77,12 @@ public class LoginSystem {
         //Otherwise
         throw new LoginFailedException();
     }
-    public static Admin adminLogin (Map<Integer, Admin> admins, Owner owner) {
+    public Admin adminLogin (Map<Integer, Admin> admins, Owner owner) {
         for (int i = 0; i < 3; i++) {
             System.out.printf("Login attempt %d/3%n", i + 1);
             //Gets the admin ID and password
-            String adminId = ProjectUtils.getValidString("Enter your admin ID: ");
-            String adminPassword = ProjectUtils.getValidString("Enter your admin password: ");
+            String adminId = projectUtils.getValidString("Enter your admin ID: ");
+            String adminPassword = projectUtils.getValidString("Enter your admin password: ");
             //Checks if the ID and password match the owner
             if (adminId.equals(owner.getUsername()) && SecurityUtils.verifyPassword(adminPassword, owner.getPassword())) {
                 return null;

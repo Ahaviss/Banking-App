@@ -12,7 +12,11 @@ import com.ahaviss.utilities.ProjectUtils;
 import java.util.Map;
 
 public class AdminMenus {
-    public static void editAdmin () {
+    private final AdminLogic adminLogic;
+    private final AccountLogic accountLogic;
+    private final ProjectUtils projectUtils;
+    public AdminMenus(AdminLogic adminLogic, AccountLogic accountLogic, ProjectUtils projectUtils) {this.adminLogic = adminLogic; this.accountLogic = accountLogic; this.projectUtils = projectUtils;}
+    public void editAdmin () {
         //Owner option to edit admins
         while (true) {
             try {
@@ -22,7 +26,7 @@ public class AdminMenus {
                         System.out.println("No admins available. Please create an admin.");
                         return;
                     }
-                    int amountOfAdminsToEdit = ProjectUtils.getValidInt(String.format("Enter the amount of the admins you want to edit (%d total admins): ", Session.getAdmins().size()));
+                    int amountOfAdminsToEdit = projectUtils.getValidInt(String.format("Enter the amount of the admins you want to edit (%d total admins): ", Session.getAdmins().size()));
                     //Gets valid input
                     if (amountOfAdminsToEdit > Session.getAdmins().size()) {
                         System.out.println("Invalid input. Please enter a number less than or equal to the number of admins.");
@@ -35,7 +39,7 @@ public class AdminMenus {
                         Admin admin;
                         while (true) {
                             //Gets the ID of the admin to edit
-                            int adminId = ProjectUtils.getValidInt("Enter the ID of the admin you want to edit: ");
+                            int adminId = projectUtils.getValidInt("Enter the ID of the admin you want to edit: ");
                             admin = Session.getAdmins().get(adminId);
                             //Checks if admin is found
                             if (admin == null) {
@@ -47,15 +51,15 @@ public class AdminMenus {
 
                         while (true) {
                             //Admin editing options
-                            String option = ProjectUtils.getValidString("Edit Name, Edit Password, Quit editing");
+                            String option = projectUtils.getValidString("Edit Name, Edit Password, Quit editing");
                             switch (option.toLowerCase()) {
                                 case "edit name":
                                     //Calls editAdminName method
-                                    AdminLogic.editAdminName(admin);
+                                    adminLogic.editAdminName(admin);
                                     break;
                                 case "edit password":
                                     //Calls editPassword method
-                                    AdminLogic.editPassword(admin);
+                                    adminLogic.editPassword(admin);
                                     break;
                                 case "quit editing":
                                     //Returns to the main menu
@@ -66,7 +70,7 @@ public class AdminMenus {
                                     continue;
                             }
                             //Ask to make more changes
-                            if (!ProjectUtils.askToContinue()) {
+                            if (!projectUtils.askToContinue()) {
                                 return;
                             }
                             break;
@@ -83,7 +87,7 @@ public class AdminMenus {
             }
         }
     }
-    public static ControlFlow adminPanel () {
+    public ControlFlow adminPanel () {
         while (true) {
             //If not admin or owner
             if (Session.getRole() != LoginEnums.ADMIN && Session.getRole() != LoginEnums.OWNER) {
@@ -94,20 +98,20 @@ public class AdminMenus {
             String option;
             //Owner panel option for the owner
             if (Session.getRole() == LoginEnums.OWNER) {
-                option = ProjectUtils.getValidString("Add Accounts, Delete Accounts, Edit accounts, Logout, Owner Panel, Quit program");
+                option = projectUtils.getValidString("Add Accounts, Delete Accounts, Edit accounts, Logout, Owner Panel, Quit program");
             }
             //General admin panel option
             else {
-                option = ProjectUtils.getValidString("Add Accounts, Delete Accounts, Edit accounts, Logout, Quit program");
+                option = projectUtils.getValidString("Add Accounts, Delete Accounts, Edit accounts, Logout, Quit program");
             }
             switch (option.toLowerCase()) {
                 case "add accounts":
                     //Calls addAccount method
-                    AccountLogic.createAccount(Session.getAccounts(), Session.getCurrentAdmin());
+                    accountLogic.createAccount(Session.getAccounts(), Session.getCurrentAdmin());
                     break;
                 case "delete accounts":
                     //Calls deleteAccount method
-                    Map<Integer, Account> tempAccounts = AccountLogic.deleteAccounts(Session.getAccounts(), Session.getCurrentAdmin());
+                    Map<Integer, Account> tempAccounts = accountLogic.deleteAccounts(Session.getAccounts(), Session.getCurrentAdmin());
                     if (tempAccounts != null) {
                         //Edits the accounts list only if tempAccount is not null
                         Session.setAccounts(tempAccounts);
@@ -115,7 +119,7 @@ public class AdminMenus {
                     break;
                 case "edit accounts":
                     //Calls editAccount method
-                    AccountMenus.editAccount();
+                    new AccountMenus(accountLogic, projectUtils).editAccount();
                     break;
                 case "logout":
                     //Logs out the user
@@ -131,7 +135,7 @@ public class AdminMenus {
                 default:
                     //Access the owner panel option only if the role is the owner
                     if (option.equalsIgnoreCase("owner panel") && Session.getRole() == LoginEnums.OWNER) {
-                        ControlFlow controlFlow = OwnerMenus.ownerPanel();
+                        ControlFlow controlFlow = new OwnerMenus(projectUtils, adminLogic).ownerPanel();
                         if (controlFlow == ControlFlow.MAIN_MENU) return ControlFlow.MAIN_MENU;
                         if (controlFlow == ControlFlow.BACK) continue;
                         if (controlFlow == ControlFlow.QUIT) return ControlFlow.QUIT;

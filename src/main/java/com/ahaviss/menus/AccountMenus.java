@@ -9,11 +9,14 @@ import com.ahaviss.session.Session;
 import com.ahaviss.utilities.ProjectUtils;
 
 public class AccountMenus {
-    public static ControlFlow accountPanel () {
+    private final AccountLogic accountLogic;
+    private final ProjectUtils projectUtils;
+    public AccountMenus(AccountLogic accountLogic, ProjectUtils projectUtils) {this.accountLogic = accountLogic; this.projectUtils = projectUtils;}
+    public ControlFlow accountPanel () {
         while (true) {
             //Account holder options
             System.out.println("Account Panel");
-            String option = ProjectUtils.getValidString("Deposit, Withdraw, Transfer, View Balance, View History, View Account Info, Logout, Change Password, Quit Program");
+            String option = projectUtils.getValidString("Deposit, Withdraw, Transfer, View Balance, View History, View Account Info, Logout, Change Password, Quit Program");
             switch (option.toLowerCase()) {
                 case "view account info":
                     //Print account information
@@ -21,15 +24,15 @@ public class AccountMenus {
                     break;
                 case "deposit":
                     //Call deposit method
-                    AccountLogic.deposit(Session.getCurrentAccount());
+                    accountLogic.deposit(Session.getCurrentAccount());
                     break;
                 case "withdraw":
                     //Call withdraw method
-                    AccountLogic.withdraw(Session.getCurrentAccount());
+                    accountLogic.withdraw(Session.getCurrentAccount());
                     break;
                 case "transfer":
                     //Call transfer method
-                    AccountLogic.transfer(Session.getAccounts(), Session.getCurrentAccount());
+                    accountLogic.transfer(Session.getAccounts(), Session.getCurrentAccount());
                     break;
                 case "view balance":
                     //Get user balance
@@ -48,7 +51,7 @@ public class AccountMenus {
                     return ControlFlow.MAIN_MENU;
                 case "change password":
                     //Call edit method
-                    Account newAcc = AccountLogic.editPassword(Session.getCurrentAccount());
+                    Account newAcc = accountLogic.editPassword(Session.getCurrentAccount());
                     if (newAcc != null) {
                         //Check if the account isn't null
                         Session.setCurrentAccount(newAcc);
@@ -66,14 +69,14 @@ public class AccountMenus {
             }
         }
     }
-    public static void editAccount () {
+    public void editAccount () {
         //Checks if the accounts list is empty
         if (!ProjectUtils.checkMap(Session.getAccounts())) {
             System.out.println("No accounts available. Please create an account.");
             return;
         }
         //Gets the number of accounts to edit
-        int amountOfAccountToEdit = ProjectUtils.getValidInt(String.format("Enter the amount of the accounts you want to edit (%d total accounts): ", Session.getAccounts().size()));
+        int amountOfAccountToEdit = projectUtils.getValidInt(String.format("Enter the amount of the accounts you want to edit (%d total accounts): ", Session.getAccounts().size()));
         //Gets a valid input
         if (amountOfAccountToEdit > Session.getAccounts().size()) {
             System.out.println("Invalid input. Please enter a number less than or equal to the number of accounts.");
@@ -85,7 +88,7 @@ public class AccountMenus {
         for (int i = 0; i < amountOfAccountToEdit; i++) {
             while (true) {
                 //Gets the ID of the account to edit
-                int accountId = ProjectUtils.getValidInt("Enter the ID of the account you want to edit: ");
+                int accountId = projectUtils.getValidInt("Enter the ID of the account you want to edit: ");
                 Account account = Session.getAccounts().get(accountId);
                 //Checks if account is found
                 if (account == null) {
@@ -98,23 +101,23 @@ public class AccountMenus {
                     if (Session.getRole() == LoginEnums.ADMIN) {
                         admin = Session.getCurrentAdmin();
                     }
-                    String whatToEdit = ProjectUtils.getValidString("Edit Holder, Edit Password, Edit Credit Score, Edit Account Status, Quit Editing");
+                    String whatToEdit = projectUtils.getValidString("Edit Holder, Edit Password, Edit Credit Score, Edit Account Status, Quit Editing");
                     switch (whatToEdit.toLowerCase()) {
                         case "edit holder":
                             //Call editAccountHolder method
-                            AccountLogic.editAccountHolder(account, admin);
+                            accountLogic.editAccountHolder(account, admin);
                             break;
                         case "edit password":
                             //Call editPassword method
-                            AccountLogic.editPasswordAdmin(account, admin);
+                            accountLogic.editPasswordAdmin(account, admin);
                             break;
                         case "edit credit score":
                             //Call editCreditScore method
-                            AccountLogic.editCreditScore(account, admin);
+                            accountLogic.editCreditScore(account, admin);
                             break;
                         case "edit account status":
                             //Call editAccountStatus method
-                            AccountLogic.editAccountStatus(account, admin);
+                            accountLogic.editAccountStatus(account, admin);
                             break;
                         case "quit editing":
                             //Return to the main menu
@@ -127,7 +130,7 @@ public class AccountMenus {
                     break;
                 }
                 //Ask to make more changes
-                if (!ProjectUtils.askToContinue()) {
+                if (!projectUtils.askToContinue()) {
                     return;
                 }
                 break;

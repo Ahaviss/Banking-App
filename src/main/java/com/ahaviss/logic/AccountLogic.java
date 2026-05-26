@@ -14,12 +14,14 @@ import java.util.Random;
 import java.time.LocalDateTime;
 public class AccountLogic {
     //RNG for account ID
-    private static final Random random = new Random();
-    public static void withdraw (Account account) {
+    private final Random random = new Random();
+    private final ProjectUtils projectUtils;
+    public AccountLogic (ProjectUtils projectUtils) {this.projectUtils = projectUtils;}
+    public void withdraw (Account account) {
         while (true) {
             double prevBalance = account.getBalance();
             //Asks for the withdrawal amount
-            double withdrawAmount = ProjectUtils.getValidDouble(String.format("Enter the amount you want to withdraw (%.2f available): ", account.getBalance()));
+            double withdrawAmount = projectUtils.getValidDouble(String.format("Enter the amount you want to withdraw (%.2f available): ", account.getBalance()));
             //Validates the withdrawal amount
             if (withdrawAmount > account.getBalance()) {
                 System.out.println("Insufficient balance.");
@@ -32,7 +34,7 @@ public class AccountLogic {
             LogManager.addLog(Action.WITHDRAW, User.USER, String.format("%d (%s)", account.getAccountId(), account.getAccountHolder()), null, String.valueOf(prevBalance), String.valueOf(account.getBalance()));
             while (true) {
                 //Asks if the user wants to make another withdrawal
-                String answer = ProjectUtils.getValidString("Withdrawal successful. Do you want to make another withdrawal? Y/N");
+                String answer = projectUtils.getValidString("Withdrawal successful. Do you want to make another withdrawal? Y/N");
                 if (answer.equalsIgnoreCase("N")) {
                     return;
                 } else if (answer.equalsIgnoreCase("Y")) {
@@ -43,18 +45,18 @@ public class AccountLogic {
             }
         }
     }
-    public static void deposit (Account account) {
+    public void deposit (Account account) {
         while (true) {
             //Asks for the deposit amount
             double prevBalance = account.getBalance();
-            double depositAmount = ProjectUtils.getValidDouble("Enter the amount you want to deposit: ");
+            double depositAmount = projectUtils.getValidDouble("Enter the amount you want to deposit: ");
             account.setBalance(account.getBalance() + depositAmount);
             //Adds the deposit to history
             account.addDeposit(new Deposit(depositAmount, account.getAccountId()));
             LogManager.addLog(Action.DEPOSIT, User.USER, String.format("%d (%s)", account.getAccountId(), account.getAccountHolder()), null, String.valueOf(prevBalance), String.valueOf(account.getBalance()));
             //Asks if the user wants to make another deposit
             while (true) {
-                String answer = ProjectUtils.getValidString("Deposit successful. Do you want to make another deposit? Y/N");
+                String answer = projectUtils.getValidString("Deposit successful. Do you want to make another deposit? Y/N");
                 if (answer.equalsIgnoreCase("Y")) {
                     break;
                 } else if (answer.equalsIgnoreCase("N")) {
@@ -65,12 +67,12 @@ public class AccountLogic {
             }
         }
     }
-    public static void transfer (Map<Integer, Account> accounts, Account currentAccount) {
+    public void transfer (Map<Integer, Account> accounts, Account currentAccount) {
         //Asks the user for the recipient ID and amount to transfer
         while (true) {
             double prevBalance1 = currentAccount.getBalance();
-            int recipientAccountId = ProjectUtils.getValidInt("Enter the ID of the recipient account: ");
-            double transferAmount = ProjectUtils.getValidDouble(String.format("Enter the amount you want to transfer (%.2f available): ", currentAccount.getBalance()));
+            int recipientAccountId = projectUtils.getValidInt("Enter the ID of the recipient account: ");
+            double transferAmount = projectUtils.getValidDouble(String.format("Enter the amount you want to transfer (%.2f available): ", currentAccount.getBalance()));
             //Validates amount to transfer
             if (transferAmount > currentAccount.getBalance()) {
                 System.out.println("Insufficient balance.");
@@ -91,7 +93,7 @@ public class AccountLogic {
             recipientAccount.addTransfer(new Transfer(transferAmount, recipientAccountId, currentAccount.getAccountId(), TransferDirection.INCOMING));
             LogManager.addLog(Action.TRANSFER, User.USER, String.format("%d (%s) -> %d (%s)", currentAccount.getAccountId(), currentAccount.getAccountHolder(), recipientAccount.getAccountId(), recipientAccount.getAccountHolder()), null, String.format("(Source) %.2f & (Recipient) %.2f", prevBalance1, prevBalance2), String.format("(Source) %.2f & (Recipient) %.2f", currentAccount.getBalance(), recipientAccount.getBalance()));
             while (true) {
-                String answer = ProjectUtils.getValidString("Transfer successful. Do you want to make another transfer? Y/N");
+                String answer = projectUtils.getValidString("Transfer successful. Do you want to make another transfer? Y/N");
                 if (answer.equalsIgnoreCase("Y")) {
                     break;
                 } else if (answer.equalsIgnoreCase("N")) {
@@ -102,19 +104,19 @@ public class AccountLogic {
             }
         }
     }
-    private static Account getAccountDetails (Map<Integer, Account> accounts) {
+    private Account getAccountDetails (Map<Integer, Account> accounts) {
         while (true) {
             //Asks for the account details
-            String name = ProjectUtils.getValidString("Enter the account holder's name: ");
-            double balance = ProjectUtils.getValidDouble("Enter the account holder's balance: ");
-            int creditScore = ProjectUtils.getValidInt("Enter the account holder's credit score");
+            String name = projectUtils.getValidString("Enter the account holder's name: ");
+            double balance = projectUtils.getValidDouble("Enter the account holder's balance: ");
+            int creditScore = projectUtils.getValidInt("Enter the account holder's credit score");
             //Validates the credit score
             if (creditScore < 500 || creditScore > 800) {
                 System.out.println("Invalid credit score. Please enter a number between 500 and 800.");
                 continue;
             }
             //Asks for the account password
-            String tempAccountPassword = ProjectUtils.getValidPassword("Enter the account holder's password: ");
+            String tempAccountPassword = projectUtils.getValidPassword("Enter the account holder's password: ");
             String accountPassword = SecurityUtils.hashPassword(tempAccountPassword);
             //Generates a random account ID
             int accountId = random.nextInt(9999999 - 1000000 + 1) + 1000000;
@@ -130,9 +132,9 @@ public class AccountLogic {
 
         }
     }
-    public static void createAccount (Map<Integer, Account> accounts, Admin admin) {
+    public void createAccount (Map<Integer, Account> accounts, Admin admin) {
         //Asks the user for the number of accounts to add
-        int amountOfAccountToAdd = ProjectUtils.getValidInt("Enter the amount of accounts you want to add: ");
+        int amountOfAccountToAdd = projectUtils.getValidInt("Enter the amount of accounts you want to add: ");
         //Gets account details
         for (int i = 0; i < amountOfAccountToAdd; i++) {
             //Call getAccountDetails method
@@ -146,7 +148,7 @@ public class AccountLogic {
             }
         }
     }
-    public static Map<Integer, Account> deleteAccounts (Map<Integer, Account> accounts, Admin admin) {
+    public Map<Integer, Account> deleteAccounts (Map<Integer, Account> accounts, Admin admin) {
         //Checks if the accounts list is empty
         if (!ProjectUtils.checkMap(accounts)) {
             System.out.println("No accounts available. Please create an account.");
@@ -155,7 +157,7 @@ public class AccountLogic {
         while (true) {
             try {
                 //Asks the number of accounts to delete
-                int amountOfPeople = ProjectUtils.getValidInt(String.format("Enter the amount of accounts you want to delete (%d total accounts): ", accounts.size()));
+                int amountOfPeople = projectUtils.getValidInt(String.format("Enter the amount of accounts you want to delete (%d total accounts): ", accounts.size()));
                 //Validates input
                 if (amountOfPeople > accounts.size()) {
                     System.out.println("Invalid input. Please enter a number less than or equal to the number of accounts.");
@@ -164,7 +166,7 @@ public class AccountLogic {
                 for (int i = 0; i < amountOfPeople; i++) {
                     while (true) {
                         //Asks for the account ID to delete
-                        int accountId = ProjectUtils.getValidInt("Enter the ID of the account you want to delete: ");
+                        int accountId = projectUtils.getValidInt("Enter the ID of the account you want to delete: ");
                         Account account = accounts.get(accountId);
                         //Checks if the account is found
                         if (account == null) {
@@ -189,7 +191,7 @@ public class AccountLogic {
             }
         }
     }
-    public static Account editPassword (Account account) {
+    public Account editPassword (Account account) {
         while (true) {
             try {
                 String currentPassword;
@@ -197,7 +199,7 @@ public class AccountLogic {
                 for (int i = 0; i < 3; i++) {
                     //Asks the user for the current password and validates it
                     System.out.printf("Password change attempt %d/3%n", i + 1);
-                    currentPassword = ProjectUtils.getValidString("Enter the current password: ");
+                    currentPassword = projectUtils.getValidString("Enter the current password: ");
                     if (!SecurityUtils.verifyPassword(currentPassword, account.getAccountPassword())) {
                         System.out.println("Incorrect password. Please try again.");
                     } else {
@@ -211,7 +213,7 @@ public class AccountLogic {
                     return null;
                 }
                 //Asks the user for the new password, validates it and sets it
-                String tempPassword = ProjectUtils.getValidPassword("Enter the new password: ");
+                String tempPassword = projectUtils.getValidPassword("Enter the new password: ");
                 String password = SecurityUtils.hashPassword(tempPassword);
                 account.setAccountPassword(password);
                 LogManager.addLog(Action.CHANGE_PASSWORD, User.USER, String.format("%d (%s)", account.getAccountId(), account.getAccountHolder()), null, "[REDACTED]", "[REDACTED]");
@@ -222,9 +224,9 @@ public class AccountLogic {
             }
         }
     }
-    public static void editPasswordAdmin (Account account, Admin admin) {
+    public void editPasswordAdmin (Account account, Admin admin) {
         try {
-            String tempNewPassword = ProjectUtils.getValidPassword("Please enter the new account password: ");
+            String tempNewPassword = projectUtils.getValidPassword("Please enter the new account password: ");
             String newPassword = SecurityUtils.hashPassword(tempNewPassword);
             account.setAccountPassword(newPassword);
             if (admin != null) {
@@ -234,21 +236,21 @@ public class AccountLogic {
             System.out.printf("An unexpected error occurred: %s%n", e.getMessage());
         }
     }
-    public static void editAccountHolder(Account account, Admin admin) {
+    public void editAccountHolder(Account account, Admin admin) {
         //Asks the user for the new account holder's name and sets it
         String oldName = account.getAccountHolder();
-        String name = ProjectUtils.getValidString("Enter the new account holder's name: ");
+        String name = projectUtils.getValidString("Enter the new account holder's name: ");
         account.setAccountHolder(name);
         if (admin != null) {
             LogManager.addLog(Action.CHANGE_HOLDER, User.ADMIN, String.format("%d (%s)", admin.getAdminId(), admin.getAdminName()), String.format("%d (%s)", account.getAccountId(), account.getAccountHolder()), oldName, name);
         }
     }
-    public static void editAccountStatus (Account account, Admin admin) {
+    public void editAccountStatus (Account account, Admin admin) {
         while (true) {
             try {
                 //Asks the user for the new account status and validates it
                 String oldStatus = String.valueOf(account.getAccountStatus());
-                String status = ProjectUtils.getValidString("Enter the new account status (active/inactive): ");
+                String status = projectUtils.getValidString("Enter the new account status (active/inactive): ");
                 if (status.equalsIgnoreCase("active")) {
                     account.setAccountStatus(AccountStatus.ACTIVE);
                     account.setDurationLocked(0);
@@ -272,12 +274,12 @@ public class AccountLogic {
             }
         }
     }
-    public static void editCreditScore (Account account, Admin admin) {
+    public void editCreditScore (Account account, Admin admin) {
         while (true) {
             try {
                 //Asks the user for the new credit score and validates it
                 int oldCreditScore = account.getCreditScore();
-                int creditScore = ProjectUtils.getValidInt("Enter the new credit score: ");
+                int creditScore = projectUtils.getValidInt("Enter the new credit score: ");
                 if (creditScore < 500 || creditScore > 800) {
                     System.out.println("Invalid credit score. Please enter a number between 500 and 800.");
                     continue;
@@ -292,7 +294,7 @@ public class AccountLogic {
             }
         }
     }
-    public static Account createOneAccount (Map<Integer, Account> accounts) {
+    public Account createOneAccount (Map<Integer, Account> accounts) {
         while (true) {
             try {
                 Account tempAccount = getAccountDetails(accounts);

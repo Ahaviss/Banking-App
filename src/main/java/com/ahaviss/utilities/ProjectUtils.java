@@ -1,14 +1,14 @@
 package com.ahaviss.utilities;
 //Java imports
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Map;
 
 public class ProjectUtils {
-    private static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-    public static int getValidInt (String prompt) {
+    private final BufferedReader br;
+    public ProjectUtils (BufferedReader br) {this.br = br;}
+    public int getValidInt (String prompt) {
         while (true) {
             try {
                 //Prints the given prompt
@@ -36,7 +36,7 @@ public class ProjectUtils {
             }
         }
     }
-    public static boolean askToContinue () {
+    public boolean askToContinue () {
         while (true) {
             String answer = getValidString("Would you like to continue? (Y/N)");
             if (answer.equalsIgnoreCase("Y")) {
@@ -48,7 +48,7 @@ public class ProjectUtils {
             }
         }
     }
-    public static String getValidString (String prompt) {
+    public String getValidString (String prompt) {
         while (true) {
             try {
                 //Prints the given prompt
@@ -69,7 +69,7 @@ public class ProjectUtils {
             }
         }
     }
-    public static double getValidDouble (String prompt) {
+    public double getValidDouble (String prompt) {
         while (true) {
             try {
                 //Prints the given prompt
@@ -98,7 +98,7 @@ public class ProjectUtils {
             }
         }
     }
-    public static String getValidPassword (String prompt) {
+    public String getValidPassword (String prompt) {
         while (true) {
             try {
                 //Prints the given prompt
@@ -144,7 +144,7 @@ public class ProjectUtils {
         }
     }
     //To close BufferedReader to save resources
-    public static void closeReader () {
+    public void closeReader () {
         try {
             br.close();
         }
@@ -155,11 +155,4 @@ public class ProjectUtils {
     //Generic method to check if an arraylist is empty
     public static <T> boolean checkArrayList (ArrayList<T> arrayList) {return !arrayList.isEmpty();}
     public static <T> boolean checkMap (Map<Integer, T> map) {return !map.isEmpty();}
-    //Test purposes only (Removable)
-    public static void resetReader() {
-        br = new BufferedReader(new InputStreamReader(System.in));
-    }
-    public static void setReader (BufferedReader newBr) {
-        br = newBr;
-    }
 }

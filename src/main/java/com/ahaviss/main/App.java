@@ -15,8 +15,20 @@ import com.ahaviss.utilities.ProjectUtils;
 import javax.crypto.AEADBadTagException;
 
 class App {
+    private final ProjectUtils projectUtils;
+    private final AccountLogic accountLogic;
+    private final AccountMenus accountMenus;
+    private final AdminMenus adminMenus;
+    private final Logins logins;
+    App (ProjectUtils projectUtils, AccountLogic accountLogic, AccountMenus accountMenus, AdminMenus adminMenus, Logins logins) {
+        this.projectUtils = projectUtils;
+        this.accountLogic = accountLogic;
+        this.accountMenus = accountMenus;
+        this.adminMenus = adminMenus;
+        this.logins = logins;
+    }
     void loadData () {
-        String password = ProjectUtils.getValidString("Password:");
+        String password = projectUtils.getValidString("Password:");
         //Loads data
         try {
             Session.setAccounts(SaveData.loadAccountData(password));
@@ -46,34 +58,34 @@ class App {
             try {
                 //If the role is admin or owner, call the adminPanel method
                 if (Session.getRole() == LoginEnums.ADMIN || Session.getRole() == LoginEnums.OWNER) {
-                    ControlFlow controlFlow = AdminMenus.adminPanel();
+                    ControlFlow controlFlow = adminMenus.adminPanel();
                     if (controlFlow == ControlFlow.QUIT) return;
                     else continue;
                     //If the role is user, call the accountPanel method
                 } else if (Session.getRole() == LoginEnums.USER) {
-                    ControlFlow controlFlow = AccountMenus.accountPanel();
+                    ControlFlow controlFlow = accountMenus.accountPanel();
                     if (controlFlow == ControlFlow.QUIT) return;
                     else continue;
                 }
                 //If the role is none
                 System.out.println("Welcome to the Banking System!");
                 //Ask the user to log in, create or quit
-                String answer = ProjectUtils.getValidString("Would you like to login, create an account, or quit? (login/create/quit)");
+                String answer = projectUtils.getValidString("Would you like to login, create an account, or quit? (login/create/quit)");
                 if (answer.equalsIgnoreCase("login")) {
-                    String login = ProjectUtils.getValidString("Would you like to login as an account holder or an admin? (account holder/admin)");
+                    String login = projectUtils.getValidString("Would you like to login as an account holder or an admin? (account holder/admin)");
                     if (login.equalsIgnoreCase("account holder")) {
                         //Calls the accountLogin method
-                        Logins.accountLogin();
+                        logins.accountLogin();
                     } else if (login.equalsIgnoreCase("admin")) {
                         //Calls the adminLogin method
-                        Logins.adminLogin();
+                        logins.adminLogin();
                     } else {
                         //Invalid input
                         System.out.println("Invalid input. Please enter 'account holder', 'admin', or 'quit'.");
                     }
                 } else if (answer.equalsIgnoreCase("create")) {
                     //Calls the createAccount method
-                    Account account = AccountLogic.createOneAccount(Session.getAccounts());
+                    Account account = accountLogic.createOneAccount(Session.getAccounts());
                     //Stores the account in the accounts list
                     Session.getAccounts().put(account.getAccountId(), account);
                 } else if (answer.equalsIgnoreCase("quit")) {
@@ -101,7 +113,7 @@ class App {
         runtime.addShutdownHook(new Thread(() -> {
             if (Session.getKillswitch()) return;
             SaveData.saveData(Session.getAdmins(), Session.getAccounts(), Session.getOwner(), LogManager.getLogs());
-            ProjectUtils.closeReader();
+            projectUtils.closeReader();
         }));
         int version = Runtime.version().feature();
         System.out.println("Version: JDK " + version);

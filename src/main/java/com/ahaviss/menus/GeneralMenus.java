@@ -5,10 +5,12 @@ import com.ahaviss.save.SaveData;
 import com.ahaviss.utilities.ProjectUtils;
 
 public class GeneralMenus {
-    public static void manageLogs () {
+    private final ProjectUtils projectUtils;
+    public GeneralMenus (ProjectUtils projectUtils) {this.projectUtils = projectUtils;}
+    public void manageLogs () {
         while (true) {
             try {
-                String option = ProjectUtils.getValidString("Print logs, Clear all logs, Quit managing.");
+                String option = projectUtils.getValidString("Print logs, Clear all logs, Quit managing.");
                 if (option.equalsIgnoreCase("print logs")) {
                     //Prints logs
                     LogManager.printLogs();

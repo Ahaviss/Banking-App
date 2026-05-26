@@ -12,8 +12,10 @@ import com.ahaviss.session.Session;
 import com.ahaviss.utilities.ProjectUtils;
 
 public class Logins {
+    private final LoginSystem loginSystem;
+    public Logins (LoginSystem loginSystem) {this.loginSystem = loginSystem;}
     //Account login
-    public static void accountLogin () {
+    public void accountLogin () {
         while (true) {
             try {
                 //Check if the accounts list is empty
@@ -24,7 +26,7 @@ public class Logins {
                 //Call the login system for accounts
                 Account tempUser;
                 try {
-                    tempUser = LoginSystem.accountLogin(Session.getAccounts());
+                    tempUser = loginSystem.accountLogin(Session.getAccounts());
                 }
                 catch (AccountLockedException e) {
                     //Traces account
@@ -74,11 +76,11 @@ public class Logins {
             }
         }
     }
-    public static void adminLogin () {
+    public void adminLogin () {
         while (true) {
             try {
                 //Calls the login system for admins
-                Admin admin = LoginSystem.adminLogin(Session.getAdmins(), Session.getOwner());
+                Admin admin = loginSystem.adminLogin(Session.getAdmins(), Session.getOwner());
                 //If the admin was validated as the owner
                 if (admin == null) {
                     System.out.println("Welcome back, owner!");

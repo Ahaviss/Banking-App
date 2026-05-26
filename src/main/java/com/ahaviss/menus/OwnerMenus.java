@@ -3,6 +3,7 @@ package com.ahaviss.menus;
 import com.ahaviss.database.Admin;
 import com.ahaviss.enums.ControlFlow;
 import com.ahaviss.enums.LoginEnums;
+import com.ahaviss.logic.AccountLogic;
 import com.ahaviss.logic.AdminLogic;
 import com.ahaviss.save.SaveData;
 import com.ahaviss.session.Session;
@@ -12,11 +13,14 @@ import com.ahaviss.utilities.SecurityUtils;
 import java.util.Map;
 
 public class OwnerMenus {
-    public static void editOwner () {
+    private final ProjectUtils projectUtils;
+    private final AdminLogic adminLogic;
+    public OwnerMenus(ProjectUtils projectUtils, AdminLogic adminLogic) {this.projectUtils = projectUtils; this.adminLogic = adminLogic;}
+    public void editOwner () {
         //Asks for and validates the current password
         boolean validated = false;
         for (int i = 0; i < 3; i++) {
-            String currentPassword = ProjectUtils.getValidString("Please enter current owner password.");
+            String currentPassword = projectUtils.getValidString("Please enter current owner password.");
             if (SecurityUtils.verifyPassword(currentPassword, Session.getOwner().getPassword())) {
                 validated = true;
                 break;
@@ -31,15 +35,15 @@ public class OwnerMenus {
         while (true) {
             try {
                 //Asks for current action
-                String option = ProjectUtils.getValidString("Edit Username, Edit Password, Quit editing");
+                String option = projectUtils.getValidString("Edit Username, Edit Password, Quit editing");
                 switch (option.toLowerCase()) {
                     case "edit username":
                         //Sets username
-                        Session.getOwner().setUsername(ProjectUtils.getValidString("Enter new username:"));
+                        Session.getOwner().setUsername(projectUtils.getValidString("Enter new username:"));
                         break;
                     case "edit password":
                         //Sets password
-                        Session.getOwner().setPasswordFromUser(ProjectUtils.getValidPassword("Enter new password:"));
+                        Session.getOwner().setPasswordFromUser(projectUtils.getValidPassword("Enter new password:"));
                         break;
                     case "quit editing":
                         return;
@@ -53,19 +57,19 @@ public class OwnerMenus {
             }
         }
     }
-    public static ControlFlow ownerPanel () {
+    public ControlFlow ownerPanel () {
         //Owner panel options
         while (true) {
             try {
-                String option = ProjectUtils.getValidString("Add Admins, Delete Admins, Edit Admins, Logout, Quit Owner Panel, Killswitch\nEdit Owner Account, Manage Logs, Quit Program");
+                String option = projectUtils.getValidString("Add Admins, Delete Admins, Edit Admins, Logout, Quit Owner Panel, Killswitch\nEdit Owner Account, Manage Logs, Quit Program");
                 switch (option.toLowerCase()) {
                     case "add admins":
                         //Calls addAdmin method
-                        AdminLogic.addAdmins(Session.getAdmins());
+                        adminLogic.addAdmins(Session.getAdmins());
                         break;
                     case "delete admins":
                         //Calls deleteAdmin method
-                        Map<Integer, Admin> tempAdmins = AdminLogic.deleteAdmins(Session.getAdmins());
+                        Map<Integer, Admin> tempAdmins = adminLogic.deleteAdmins(Session.getAdmins());
                         if (tempAdmins != null) {
                             //Edits the admin list only if tempAdmins is not null
                             Session.setAdmins(tempAdmins);
@@ -73,7 +77,7 @@ public class OwnerMenus {
                         break;
                     case "edit admins":
                         //Calls editAdmin method
-                        AdminMenus.editAdmin();
+                        new AdminMenus(adminLogic, new AccountLogic(projectUtils), projectUtils).editAdmin();
                         break;
                     case "logout":
                         //Logs out the user
@@ -103,7 +107,7 @@ public class OwnerMenus {
                         break;
                     case "manage logs":
                         //Calls manageLogs method
-                        GeneralMenus.manageLogs();
+                        new GeneralMenus(projectUtils).manageLogs();
                         break;
                     default:
                         //Invalid option

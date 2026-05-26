@@ -127,7 +127,7 @@ public class SaveData {
                 //Confirms with user
                 System.out.println("Are you sure you want to turn on the killswitch?");
                 System.out.println("This will delete all data and terminate the program.");
-                String option = ProjectUtils.getValidString("Y/N");
+                String option = new ProjectUtils(new BufferedReader(new InputStreamReader(System.in))).getValidString("Y/N");
                 if (option.equalsIgnoreCase("y")) {
                     File delete1 = new File(ACCOUNTS_FILE);
                     File delete2 = new File(ADMINS_FILE);
