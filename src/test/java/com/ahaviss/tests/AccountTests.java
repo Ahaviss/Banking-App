@@ -26,10 +26,12 @@ class AccountTests {
     private Account account;
     private static String sharedHash;
     @BeforeAll
+    @SuppressWarnings({"unused", "EmptyTryBlock"})
     static void beforeAll() {
         //To connect Mockito before tests
         try (var ignored = Mockito.mockStatic(SecurityUtils.class)) {}
         sharedHash = SecurityUtils.hashPassword("123Password");
+        Class<?> warmup = AdminInputTests.class;
     }
     @BeforeEach
     void setUp() {
@@ -39,7 +41,7 @@ class AccountTests {
     void tearDown() {
         account = null;
     }
-    private AccountLogic setAccountLogic (ProjectUtils projectUtils) {
+    private AccountLogic mockAccountLogic (ProjectUtils projectUtils) {
         return new AccountLogic(projectUtils);
     }
     @Nested
@@ -60,7 +62,17 @@ class AccountTests {
                 );
             }
         }
-
+        @Test
+        @DisplayName("Test logging in")
+        void testLoggingIn () {
+            try (MockedStatic<SecurityUtils> mockedStatic = mockStatic(SecurityUtils.class)) {
+                mockedStatic.when(() -> SecurityUtils.verifyPassword("123Password", sharedHash)).thenReturn(true);
+                String simulatedInput = "5555555\n123Password";
+                Map<Integer, Account> map = new HashMap<>();
+                map.put(5555555, account);
+                assertDoesNotThrow(() -> new LoginSystem(TestUtils.mockInput(simulatedInput)).accountLogin(map));
+            }
+        }
         @ParameterizedTest
         @CsvSource({
                 "-1000, 10",
@@ -68,24 +80,25 @@ class AccountTests {
                 "-5, 5",
                 "-2, 2"
         })
-        @DisplayName("Test deposits")
+        @DisplayName("Test Deposits")
         void testDeposits(int transferAmountInvalid, int transferAmountValid) {
             String simulatedInput = String.format("%s\n%s\nn\n", transferAmountInvalid, transferAmountValid);
-            setAccountLogic(TestUtils.mockInput(simulatedInput)).deposit(account);
+            mockAccountLogic(TestUtils.mockInput(simulatedInput)).deposit(account);
             assertEquals(100 + transferAmountValid, account.getBalance(), "Negative check failed");
         }
 
         @Test
-        @DisplayName("Test lockout reliability")
+        @DisplayName("Test Lockout Reliability")
         void testLockoutReliability() {
             try (MockedStatic<SecurityUtils> mockedStatic = mockStatic(SecurityUtils.class)) {
                 mockedStatic.when(() -> SecurityUtils.hashPassword("123Password")).thenReturn(sharedHash);
+                mockedStatic.when(() -> SecurityUtils.verifyPassword("1", sharedHash)).thenReturn(false);
                 String simulatedInput = "5555555\n1\n5555555\n1\n5555555\n1\n";
                 assertThrows(AccountLockedException.class, () -> {
                     Map<Integer, Account> list = new HashMap<>();
                     list.put(account.getAccountId(), account);
                     new LoginSystem(TestUtils.mockInput(simulatedInput)).accountLogin(list);
-                });
+                }, "Lockout reliability test failed");
             }
         }
 
@@ -103,9 +116,38 @@ class AccountTests {
             else
                 simulatedInput = String.format("5555555\n%s\n", transferAmount);
 
-            setAccountLogic(TestUtils.mockInput(simulatedInput)).transfer(accounts, account2);
+            mockAccountLogic(TestUtils.mockInput(simulatedInput)).transfer(accounts, account2);
             assertEquals(100 - (transferAmount <= 100 ? transferAmount : 0), account2.getBalance(), "Source account balance is incorrect");
             assertEquals(100 + (transferAmount <= 100 ? transferAmount : 0), account.getBalance(), "Recipient account balance is incorrect");
+        }
+        @ParameterizedTest
+        @ValueSource(ints = {100, 50, 10, 5})
+        @DisplayName("Test Withdraws")
+        void testWithdraws(int withdrawAmount) {
+            String simulatedInput = String.format("%s\nn", withdrawAmount);
+            mockAccountLogic(TestUtils.mockInput(simulatedInput)).withdraw(account);
+            assertEquals((100 - withdrawAmount), account.getBalance(), "Withdraw test failed");
+        }
+        @ParameterizedTest
+        @CsvSource({
+                "incorrect, whatever, 123Password, UnguessablePassword@123",
+                "random, 123, 123Password, SecretPassword1",
+                "wrong, 123Paswordd, 123Password, BankPassword123",
+                "stopTrying, 12GetMeIn, 123Password, NewPassword123"
+        })
+        @DisplayName("Test User Changing Password")
+        void testUserChangingPassword (String incorrectPassword1, String incorrectPassword2, String correctPassword, String passwordToHash) {
+            try (MockedStatic<SecurityUtils> mockedStatic = mockStatic(SecurityUtils.class)) {
+                mockedStatic.when(() -> SecurityUtils.verifyPassword(anyString(), eq(sharedHash))).thenAnswer(arg -> {
+                    String password = arg.getArgument(0);
+                    if (correctPassword.equals(password)) return true;
+                    else return false;
+                });
+                mockedStatic.when(() -> SecurityUtils.hashPassword(passwordToHash)).thenReturn("mocked_hash");
+                String simulatedInput = String.format("%s\n%s\n%s\n%s", incorrectPassword1, incorrectPassword2, correctPassword, passwordToHash);
+                mockAccountLogic(TestUtils.mockInput(simulatedInput)).editPassword(account);
+                assertEquals("mocked_hash", account.getAccountPassword(), "Incorrect password change.");
+            }
         }
     }
     @Nested
@@ -118,7 +160,7 @@ class AccountTests {
                 "Password, 1000Secure",
                 "12Pass, 1001SecurePassword"
         })
-        @DisplayName("Test Changing password")
+        @DisplayName("Test Changing Password")
         void testChangingPassword(String newPasswordInvalid, String newPasswordValid) {
             try (MockedStatic<SecurityUtils> mockedStatic = mockStatic(SecurityUtils.class)) {
                 mockedStatic.when(() -> SecurityUtils.hashPassword(newPasswordValid))
@@ -126,19 +168,19 @@ class AccountTests {
                 mockedStatic.when(() -> SecurityUtils.verifyPassword(newPasswordValid, "completely_mocked_hash"))
                         .thenReturn(true);
                 String simulatedInput = String.format("%s\n%s\n", newPasswordInvalid, newPasswordValid);
-                setAccountLogic(TestUtils.mockInput(simulatedInput)).editPasswordAdmin(account, admin);
+                mockAccountLogic(TestUtils.mockInput(simulatedInput)).editPasswordAdmin(account, admin);
                 assertTrue(SecurityUtils.verifyPassword(newPasswordValid, account.getAccountPassword()), "Incorrect password change.");
             }
         }
         @ParameterizedTest
-        @ValueSource(ints = {5555555, 1000000, 3434343})
+        @ValueSource(ints = {5555555, 1000000, 3434343, 9999999})
         @DisplayName("Test Deleting Accounts")
         void testDeletingAccounts(int accountId) {
             final Map<Integer, Account> accounts = new HashMap<>();
             String hashedPassword = sharedHash;
             accounts.put(accountId, new Account (accountId, "John", 100, hashedPassword, AccountStatus.ACTIVE, 800));
             String simulatedInput = String.format("1\n%s\n", accountId);
-            setAccountLogic(TestUtils.mockInput(simulatedInput)).deleteAccounts(accounts, admin);
+            mockAccountLogic(TestUtils.mockInput(simulatedInput)).deleteAccounts(accounts, admin);
             assertNull(accounts.get(accountId));
         }
         @ParameterizedTest
@@ -170,8 +212,21 @@ class AccountTests {
         @DisplayName("Test Changing Account Holder")
         void testChangingAccountHolder (String accountHolderInvalid, String accountHolderValid) {
             String simulatedInput = String.format("%s\n%s\n", accountHolderInvalid, accountHolderValid);
-            setAccountLogic(TestUtils.mockInput(simulatedInput)).editAccountHolder(account, admin);
+            mockAccountLogic(TestUtils.mockInput(simulatedInput)).editAccountHolder(account, admin);
             assertEquals(accountHolderValid, account.getAccountHolder());
+        }
+        @ParameterizedTest
+        @CsvSource ({
+                "100, 1000, 650",
+                "0, 900, 800",
+                "499, 801, 800",
+                "109, 10029, 750"
+        })
+        @DisplayName("Test Changing Credit Score")
+        void testChangingCreditScore (int invalidCreditScore1, int invalidCreditScore2, int validCreditScore) {
+            String simulatedInput = String.format("%s\n%s\n%s", invalidCreditScore1, invalidCreditScore2, validCreditScore);
+            mockAccountLogic(TestUtils.mockInput(simulatedInput)).editCreditScore(account, admin);
+            assertEquals(validCreditScore, account.getCreditScore());
         }
     }
 }
