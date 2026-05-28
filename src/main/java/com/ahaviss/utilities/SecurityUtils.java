@@ -9,6 +9,7 @@
 package com.ahaviss.utilities;
 import org.bouncycastle.crypto.params.Argon2Parameters;
 import org.bouncycastle.crypto.generators.Argon2BytesGenerator;
+import javax.crypto.AEADBadTagException;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
@@ -18,11 +19,17 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.Base64;
 import java.nio.ByteBuffer;
+/**
+ * Utility class providing secure cryptographic operations including AES-256-GCM
+ * encryption/decryption and Argon2id password hashing.
+ * @author Ahaviss
+ */
 public class SecurityUtils {
     private static final int ARGON2_ITERATIONS  = 3;
-    private static final int ARGON2_MEMORY      = 65536;
+    private static final int ARGON2_MEMORY      = 131072;
     private static final int ARGON2_PARALLELISM = 4;
     private static final int ARGON2_HASH_LENGTH = 32;
 
@@ -30,8 +37,18 @@ public class SecurityUtils {
     private static final int TAG_LENGTH_BIT = 128;
     private static final int IV_LENGTH_BYTE = 12;
     private static final int SALT_LENGTH_BYTE = 16;
-    private static final int ITERATIONS = 310000;
+    private static final int ITERATIONS = 650000;
     private static final int KEY_LENGTH = 256;
+    /** 
+     * Derives an AES key with a PBKDF2 algorithm from a password.
+     * 
+     * @param password the password in array format from which the AES key will be derived from
+     * @param salt the salt which guarantees a unique AES key every method call
+     * @return an AES key derived from a password and the PBKDF2 algorithm
+     * @throws Exception for any cryptography errors
+     * @see #encrypt(String, String) 
+     * @see #decrypt(String, String) 
+     * */
     public static SecretKey getAESKeyFromPassword(char[] password, byte[] salt) throws Exception {
         SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
         PBEKeySpec spec = new PBEKeySpec(password, salt, ITERATIONS, KEY_LENGTH);
@@ -39,6 +56,16 @@ public class SecurityUtils {
         spec.clearPassword();
         return secret;
     }
+    /**
+     * Encrypts plaintext using AES-256-GCM with a PBKDF2-derived key.
+     * Returns a Base64 string containing: [iv][salt][ciphertext+tag].
+     * To be decrypted by {@link #decrypt(String, String)}
+     * 
+     * @param plainText  The string to encrypt
+     * @param password   The password to derive the key from {@code char[]}  — zero after use
+     * @return           Base64-encoded packed string
+     * @throws Exception If any cryptographic operation fails
+     */
     public static String encrypt(String plainText, String password) throws Exception {
         // 1. Generate random IV and Salt (different every single time you save!)
         byte[] iv = new byte[IV_LENGTH_BYTE];
@@ -63,10 +90,19 @@ public class SecurityUtils {
         byteBuffer.put(iv);
         byteBuffer.put(salt);
         byteBuffer.put(cipherText);
-
+        Arrays.fill(aesKey.getEncoded(), (byte) 0);
         // 6. Return as a Base64 string so it can be saved in a text file
         return Base64.getEncoder().encodeToString(byteBuffer.array());
     }
+    /**
+     * Decrypts a Base-64 encoded String produced by {@link #encrypt(String, String)}.
+     *
+     * @param base64Package is the ciphertext packaged with a salt, IV (Initialization Vector), and ciphertext
+     * @param password is the key inputted by user, and an AES key is derived from it using PBKDF2
+     * @return A plain JSON String for Jackson to turn into an Object or Map
+     * @throws AEADBadTagException if password is incorrect, or data is corrupted or tampered with
+     * @throws Exception if any other operation fails
+     * */
     public static String decrypt(String base64Package, String password) throws Exception {
         // 1. Decode the Base64 back into raw bytes
         byte[] decoded = Base64.getDecoder().decode(base64Package);
@@ -93,6 +129,7 @@ public class SecurityUtils {
 
         // 6. Decrypt. This will throw an exception if the password is wrong OR if the data was edited.
         byte[] plainText = cipher.doFinal(cipherText);
+        Arrays.fill(aesKey.getEncoded(), (byte) 0);
         return new String(plainText, StandardCharsets.UTF_8);
     }
     private static byte[] generateSalt() {
@@ -102,6 +139,15 @@ public class SecurityUtils {
         new SecureRandom().nextBytes(salt);
         return salt;
     }
+
+    /**
+     * Hashes a String using Argon2id from BouncyCastle and packages hashed with salt.
+     * Can be compared with a plaintext string using {@link #verifyPassword(String, String)}
+     * 
+     * @param password the string to hash securely
+     * @return a Base-64 encoded string which is hashed securely and packaged with salt
+     * @see #verifyPassword(String, String) 
+     */
     public static String hashPassword(String password) {
         byte[] salt = generateSalt();
         Argon2Parameters params = new Argon2Parameters.Builder(Argon2Parameters.ARGON2_id)
@@ -122,9 +168,18 @@ public class SecurityUtils {
                 ARGON2_MEMORY, ARGON2_ITERATIONS, ARGON2_PARALLELISM, saltBase64, hashBase64
         );
     }
+    /** 
+     * Verifies that an inputted password is the same as a stored hash hashed by {@link #hashPassword(String)}.
+     * 
+     * @param inputPassword the inputted password which will be compared to the hash
+     * @param storedHash the stored hash inside a data source will be compared to the inputted password
+     * @return a boolean verifying if the two inputs are the same (after hashing input password) true = same, false = different
+     * @see #hashPassword(String) 
+     * */
     public static boolean verifyPassword(String inputPassword, String storedHash) {
         try {
             String[] parts = storedHash.split("\\$");
+            int version = Integer.parseInt(parts[2].split("=")[1]);
             String[] paramParts = parts[3].split(",");
             int memory = Integer.parseInt(paramParts[0].split("=")[1]);
             int iterations = Integer.parseInt(paramParts[1].split("=")[1]);
@@ -132,7 +187,7 @@ public class SecurityUtils {
             byte[] salt = Base64.getDecoder().decode(parts[4]);
             byte[] expectedHash = Base64.getDecoder().decode(parts[5]);
             Argon2Parameters params = new Argon2Parameters.Builder(Argon2Parameters.ARGON2_id)
-                    .withVersion(Argon2Parameters.ARGON2_VERSION_13)
+                    .withVersion(version == 19 ? Argon2Parameters.ARGON2_VERSION_13 : Argon2Parameters.ARGON2_VERSION_10)
                     .withSalt(salt)
                     .withIterations(iterations)
                     .withMemoryAsKB(memory)

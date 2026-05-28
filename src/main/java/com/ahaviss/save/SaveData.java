@@ -20,15 +20,18 @@ import com.ahaviss.logs.database.Log;
 import com.ahaviss.session.Session;
 import com.ahaviss.utilities.ProjectUtils;
 import com.ahaviss.utilities.SecurityUtils;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class SaveData {
     private static final ObjectMapper mapper = new ObjectMapper();
     static {
         mapper.registerModule(new JavaTimeModule());
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
     private final ProjectUtils projectUtils;
     private static final String fileSeparator = java.io.File.separator;
