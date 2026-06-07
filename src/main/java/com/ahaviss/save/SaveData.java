@@ -12,6 +12,9 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import com.ahaviss.database.Account;
 import com.ahaviss.database.Admin;
@@ -27,6 +30,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SaveData {
+    //ReadWriteLocks
+    public static final ReadWriteLock locks = new ReentrantReadWriteLock(true);
     private static final ObjectMapper mapper = new ObjectMapper();
     static {
         mapper.registerModule(new JavaTimeModule());
@@ -90,11 +95,11 @@ public class SaveData {
     }
     private static <T> Map<Integer, T> loadMap(String filename, String password, Class <T> type) throws Exception {
         File file = new File(filename);
-        if (!file.exists()) return new HashMap<>();
+        if (!file.exists()) return new ConcurrentHashMap<>();
         String encrypted = Files.readString(file.toPath());
         String jsonString = SecurityUtils.decrypt(encrypted, password);
-        Map<Integer, T> list = mapper.readValue(jsonString, mapper.getTypeFactory().constructMapType(HashMap.class, Integer.class, type));
-        if (list == null) return new HashMap<>();
+        Map<Integer, T> list = mapper.readValue(jsonString, mapper.getTypeFactory().constructMapType(ConcurrentHashMap.class, Integer.class, type));
+        if (list == null) return new ConcurrentHashMap<>();
         return list;
     }
     private static void saveSpecificData (Object obj, File primary, File backup, String dataType) {

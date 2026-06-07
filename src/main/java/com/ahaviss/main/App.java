@@ -36,6 +36,7 @@ class App {
         this.logins = logins;
     }
     void loadData () {
+        Session.setKillswitch(true);
         String password = projectUtils.getValidString("Password:");
         //Loads data
         try {
@@ -55,6 +56,7 @@ class App {
             Session.setKillswitch(true);
             System.exit(1);
         }
+        Session.setKillswitch(false);
     }
     void start () {
         loadData();
@@ -123,6 +125,7 @@ class App {
             SaveData.saveData(Session.getAdmins(), Session.getAccounts(), Session.getOwner(), LogManager.getLogs());
             projectUtils.closeReader();
         }));
+        Session.startAutoSaver();
         int version = Runtime.version().feature();
         System.out.println("Version: JDK " + version);
         if (version < 21) {

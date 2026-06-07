@@ -10,6 +10,7 @@ package com.ahaviss.menus;
 
 import com.ahaviss.logs.manager.LogManager;
 import com.ahaviss.save.SaveData;
+import com.ahaviss.session.Session;
 import com.ahaviss.utilities.ProjectUtils;
 
 public class GeneralMenus {
@@ -35,6 +36,31 @@ public class GeneralMenus {
             }
             catch (Exception e) {
                 System.out.printf("An unexpected error occurred: %s%n", e.getMessage());
+            }
+        }
+    }
+    public void manageAutoSaver () {
+        while (true) {
+            String option = projectUtils.getValidString("Change Autosave Duration, Stop Autosaver, Start Autosaver, Force Start Autosaver, Quit Managing");
+            switch (option.toLowerCase()) {
+                case "change autosave duration":
+                    long duration = projectUtils.getValidLong("New autosave duration (sec):");
+                    Session.changeSaveDuration(duration * 1000);
+                    break;
+                case "stop autosaver":
+                    Session.stopAutoSaver();
+                    break;
+                case "start autosaver":
+                    if (Session.isAutoSaverRunning()) System.out.println("Autosaver is already running");
+                    else Session.restartAutoSaver();
+                    break;
+                case "force start autosaver":
+                    Session.restartAutoSaver();
+                    break;
+                case "quit managing":
+                    return;
+                default:
+                    System.out.println("Invalid option. Please try again.");
             }
         }
     }

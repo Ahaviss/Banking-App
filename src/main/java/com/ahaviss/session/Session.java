@@ -12,25 +12,42 @@ import com.ahaviss.database.Account;
 import com.ahaviss.database.Admin;
 import com.ahaviss.database.Owner;
 import com.ahaviss.enums.LoginEnums;
+import com.ahaviss.save.AutoSaver;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Session {
+    private static volatile AutoSaver rawAutoSaver = new AutoSaver();
+    private static volatile Thread autoSaver = new Thread(rawAutoSaver);
     //Password
-    private static String masterPassword;
+    private static volatile String masterPassword;
     //Owner's credentials'
-    private static Owner owner = new Owner();
+    private static volatile Owner owner = new Owner();
     //Current account index
     private static Account currentAccount;
     private static Admin currentAdmin;
     //Current role
     private static LoginEnums role = LoginEnums.NONE;
     //Account and admin lists
-    private static Map<Integer, Account> accounts = new HashMap<>();
-    private static Map<Integer, Admin> admins = new HashMap<>();
+    private static Map<Integer, Account> accounts = new ConcurrentHashMap<>();
+    private static Map<Integer, Admin> admins = new ConcurrentHashMap<>();
     //Killswitch boolean
-    private static boolean killswitch = false;
+    private static volatile boolean killswitch = false;
+    public static void startAutoSaver() {
+        autoSaver.setDaemon(true);
+        autoSaver.start();
+    }
+    public static void restartAutoSaver () {
+        rawAutoSaver = new AutoSaver();
+        autoSaver = new Thread(rawAutoSaver);
+        startAutoSaver();
+    }
+    public static void stopAutoSaver() {rawAutoSaver.stop();}
+    public static boolean isAutoSaverRunning() {
+        return autoSaver.isAlive() && autoSaver != null && rawAutoSaver.getRunning();
+    }
+    public static void changeSaveDuration (long milliseconds) {rawAutoSaver.setMilliseconds(milliseconds);}
     public static String getMasterPassword () {return masterPassword;}
     public static void setMasterPassword (String masterPassword) {Session.masterPassword = masterPassword;}
     public static Owner getOwner () {return owner;}

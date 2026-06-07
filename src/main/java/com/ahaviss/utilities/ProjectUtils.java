@@ -44,6 +44,34 @@ public class ProjectUtils {
             }
         }
     }
+    public long getValidLong (String prompt) {
+        while (true) {
+            try {
+                //Prints the given prompt
+                System.out.println(prompt);
+                String tempInput = br.readLine().trim();
+                if (tempInput == null || tempInput.isBlank()) {
+                    System.out.println("Invalid input. Please enter a non-empty number.");
+                    continue;
+                }
+                long input = Long.parseLong(tempInput);
+                //Checks if the input is positive
+                if (input < 0) {
+                    System.out.println("Invalid input. Please enter a positive integer.");
+                    continue;
+                }
+                //Returns the input
+                return input;
+                //Catch invalid input
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a valid integer.");
+            } catch (IOException e) {
+                System.out.println("Invalid input: " + e.getMessage());
+            } catch (Exception e) {
+                System.out.printf("An unexpected error occurred: %s%n", e.getMessage());
+            }
+        }
+    }
     public boolean askToContinue () {
         while (true) {
             String answer = getValidString("Would you like to continue? (Y/N)");

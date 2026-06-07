@@ -23,7 +23,12 @@ import java.util.Map;
 public class OwnerMenus {
     private final ProjectUtils projectUtils;
     private final AdminLogic adminLogic;
-    public OwnerMenus(ProjectUtils projectUtils, AdminLogic adminLogic) {this.projectUtils = projectUtils; this.adminLogic = adminLogic;}
+    private final GeneralMenus generalMenus;
+    public OwnerMenus(ProjectUtils projectUtils, AdminLogic adminLogic, GeneralMenus generalMenus) {
+        this.projectUtils = projectUtils;
+        this.adminLogic = adminLogic;
+        this.generalMenus = generalMenus;
+    }
     public void editOwner () {
         //Asks for and validates the current password
         boolean validated = false;
@@ -69,7 +74,7 @@ public class OwnerMenus {
         //Owner panel options
         while (true) {
             try {
-                String option = projectUtils.getValidString("Add Admins, Delete Admins, Edit Admins, Logout, Quit Owner Panel, Killswitch\nEdit Owner Account, Manage Logs, Quit Program");
+                String option = projectUtils.getValidString("Add Admins, Delete Admins, Edit Admins, Logout, Quit Owner Panel, Killswitch\nEdit Owner Account, Manage Logs, Manage Autosaver, Quit Program");
                 switch (option.toLowerCase()) {
                     case "add admins":
                         //Calls addAdmin method
@@ -115,8 +120,10 @@ public class OwnerMenus {
                         break;
                     case "manage logs":
                         //Calls manageLogs method
-                        new GeneralMenus(projectUtils).manageLogs();
+                        generalMenus.manageLogs();
                         break;
+                    case "manage autosaver":
+                        generalMenus.manageAutoSaver();
                     default:
                         //Invalid option
                         System.out.println("Invalid option. Please try again.");

@@ -143,7 +143,7 @@ public class AdminMenus {
                 default:
                     //Access the owner panel option only if the role is the owner
                     if (option.equalsIgnoreCase("owner panel") && Session.getRole() == LoginEnums.OWNER) {
-                        ControlFlow controlFlow = new OwnerMenus(projectUtils, adminLogic).ownerPanel();
+                        ControlFlow controlFlow = new OwnerMenus(projectUtils, adminLogic, new GeneralMenus(projectUtils)).ownerPanel();
                         if (controlFlow == ControlFlow.MAIN_MENU) return ControlFlow.MAIN_MENU;
                         if (controlFlow == ControlFlow.BACK) continue;
                         if (controlFlow == ControlFlow.QUIT) return ControlFlow.QUIT;
