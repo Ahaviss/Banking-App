@@ -61,21 +61,18 @@ public class AdminMenus {
                             //Admin editing options
                             String option = projectUtils.getValidString("Edit Name, Edit Password, Quit editing");
                             switch (option.toLowerCase()) {
-                                case "edit name":
+                                case "edit name" ->
                                     //Calls editAdminName method
                                     adminLogic.editAdminName(admin);
-                                    break;
-                                case "edit password":
+                                case "edit password" ->
                                     //Calls editPassword method
                                     adminLogic.editPassword(admin);
-                                    break;
-                                case "quit editing":
-                                    //Returns to the main menu
-                                    return;
-                                default:
+                                case "quit editing" -> {return;}
+                                default -> {
                                     //Invalid option
                                     System.out.println("Invalid option. Please try again.");
                                     continue;
+                                }
                             }
                             //Ask to make more changes
                             if (!projectUtils.askToContinue()) {
@@ -113,34 +110,34 @@ public class AdminMenus {
                 option = projectUtils.getValidString("Add Accounts, Delete Accounts, Edit accounts, Logout, Quit program");
             }
             switch (option.toLowerCase()) {
-                case "add accounts":
+                case "add accounts" ->
                     //Calls addAccount method
                     accountLogic.createAccount(Session.getAccounts(), Session.getCurrentAdmin());
-                    break;
-                case "delete accounts":
+                case "delete accounts" -> {
                     //Calls deleteAccount method
                     Map<Integer, Account> tempAccounts = accountLogic.deleteAccounts(Session.getAccounts(), Session.getCurrentAdmin());
                     if (tempAccounts != null) {
                         //Edits the accounts list only if tempAccount is not null
                         Session.setAccounts(tempAccounts);
                     }
-                    break;
-                case "edit accounts":
+                }
+                case "edit accounts" ->
                     //Calls editAccount method
                     new AccountMenus(accountLogic, projectUtils).editAccount();
-                    break;
-                case "logout":
+                case "logout" -> {
                     //Logs out the user
                     System.out.println("Logging out...");
                     //Sets user role to none
                     Session.setRole(LoginEnums.NONE);
                     Session.setCurrentAdmin(null);
                     return ControlFlow.MAIN_MENU;
-                case "quit program":
+                }
+                case "quit program" -> {
                     System.out.println("Terminating program...");
                     //Send a quit message
                     return ControlFlow.QUIT;
-                default:
+                }
+                default -> {
                     //Access the owner panel option only if the role is the owner
                     if (option.equalsIgnoreCase("owner panel") && Session.getRole() == LoginEnums.OWNER) {
                         ControlFlow controlFlow = new OwnerMenus(projectUtils, adminLogic, new GeneralMenus(projectUtils)).ownerPanel();
@@ -150,6 +147,7 @@ public class AdminMenus {
                     }
                     //General admin panel error message
                     System.out.println("Invalid option. Please try again.");
+                }
             }
         }
     }

@@ -41,26 +41,27 @@ public class GeneralMenus {
     }
     public void manageAutoSaver () {
         while (true) {
+            //Asks for option
             String option = projectUtils.getValidString("Change Autosave Duration, Stop Autosaver, Start Autosaver, Force Start Autosaver, Quit Managing");
             switch (option.toLowerCase()) {
-                case "change autosave duration":
+                //Changes autosaver duration (converts to milliseconds)
+                case "change autosave duration" -> {
                     long duration = projectUtils.getValidLong("New autosave duration (sec):");
                     Session.changeSaveDuration(duration * 1000);
-                    break;
-                case "stop autosaver":
-                    Session.stopAutoSaver();
-                    break;
-                case "start autosaver":
+                }
+                //Stops autosaver
+                case "stop autosaver" -> Session.stopAutoSaver();
+                //Starts autosaver if autosaver isn't on
+                case "start autosaver" -> {
                     if (Session.isAutoSaverRunning()) System.out.println("Autosaver is already running");
                     else Session.restartAutoSaver();
-                    break;
-                case "force start autosaver":
-                    Session.restartAutoSaver();
-                    break;
-                case "quit managing":
-                    return;
-                default:
-                    System.out.println("Invalid option. Please try again.");
+                }
+                //Starts autosaver no matter its state
+                case "force start autosaver" -> Session.restartAutoSaver();
+                //Returns to the owner panel
+                case "quit managing" -> {return;}
+                //Invalid input
+                default -> System.out.println("Invalid option. Please try again.");
             }
         }
     }

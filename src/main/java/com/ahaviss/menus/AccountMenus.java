@@ -26,52 +26,46 @@ public class AccountMenus {
             System.out.println("Account Panel");
             String option = projectUtils.getValidString("Deposit, Withdraw, Transfer, View Balance, View History, View Account Info, Logout, Change Password, Quit Program");
             switch (option.toLowerCase()) {
-                case "view account info":
+                case "view account info"->
                     //Print account information
                     Session.getCurrentAccount().printInfo();
-                    break;
-                case "deposit":
+                case "deposit" ->
                     //Call deposit method
                     accountLogic.deposit(Session.getCurrentAccount());
-                    break;
-                case "withdraw":
+                case "withdraw" ->
                     //Call withdraw method
                     accountLogic.withdraw(Session.getCurrentAccount());
-                    break;
-                case "transfer":
+                case "transfer" ->
                     //Call transfer method
                     accountLogic.transfer(Session.getAccounts(), Session.getCurrentAccount());
-                    break;
-                case "view balance":
+                case "view balance" ->
                     //Get user balance
                     System.out.println("$" + Session.getCurrentAccount().getBalance());
-                    break;
-                case "view history":
+                case "view history" ->
                     //Print account logs
                     Session.getCurrentAccount().printHistory();
-                    break;
-                case "logout":
+                case "logout" -> {
                     //Logs out the user
                     System.out.println("Logging out...");
                     //Sets user role to none
                     Session.setRole(LoginEnums.NONE);
                     Session.setCurrentAccount(null);
                     return ControlFlow.MAIN_MENU;
-                case "change password":
+                }
+                case "change password" -> {
                     //Call edit method
                     Account newAcc = accountLogic.editPassword(Session.getCurrentAccount());
                     if (newAcc != null) {
                         //Check if the account isn't null
                         Session.setCurrentAccount(newAcc);
-                    } else {
-                        continue;
                     }
-                    break;
-                case "quit program":
+                }
+                case "quit program" -> {
                     System.out.println("Terminating program...");
                     //Send a quit message
                     return ControlFlow.QUIT;
-                default:
+                }
+                default ->
                     //Invalid option
                     System.out.println("Invalid option. Please try again.");
             }
@@ -111,29 +105,24 @@ public class AccountMenus {
                     }
                     String whatToEdit = projectUtils.getValidString("Edit Holder, Edit Password, Edit Credit Score, Edit Account Status, Quit Editing");
                     switch (whatToEdit.toLowerCase()) {
-                        case "edit holder":
+                        case "edit holder" ->
                             //Call editAccountHolder method
                             accountLogic.editAccountHolder(account, admin);
-                            break;
-                        case "edit password":
+                        case "edit password" ->
                             //Call editPassword method
                             accountLogic.editPasswordAdmin(account, admin);
-                            break;
-                        case "edit credit score":
+                        case "edit credit score" ->
                             //Call editCreditScore method
                             accountLogic.editCreditScore(account, admin);
-                            break;
-                        case "edit account status":
+                        case "edit account status" ->
                             //Call editAccountStatus method
                             accountLogic.editAccountStatus(account, admin);
-                            break;
-                        case "quit editing":
-                            //Return to the main menu
-                            return;
-                        default:
+                        case "quit editing" -> {return;}
+                        default -> {
                             //Invalid option
                             System.out.println("Invalid option. Please try again.");
                             continue;
+                        }
                     }
                     break;
                 }

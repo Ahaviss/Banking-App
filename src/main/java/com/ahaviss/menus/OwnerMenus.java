@@ -50,17 +50,14 @@ public class OwnerMenus {
                 //Asks for current action
                 String option = projectUtils.getValidString("Edit Username, Edit Password, Quit editing");
                 switch (option.toLowerCase()) {
-                    case "edit username":
+                    case "edit username" ->
                         //Sets username
                         Session.getOwner().setUsername(projectUtils.getValidString("Enter new username:"));
-                        break;
-                    case "edit password":
+                    case "edit password" ->
                         //Sets password
                         Session.getOwner().setPasswordFromUser(projectUtils.getValidPassword("Enter new password:"));
-                        break;
-                    case "quit editing":
-                        return;
-                    default:
+                    case "quit editing" -> {return;}
+                    default ->
                         //Invalid option
                         System.out.println("Invalid option. Please try again.");
                 }
@@ -76,55 +73,55 @@ public class OwnerMenus {
             try {
                 String option = projectUtils.getValidString("Add Admins, Delete Admins, Edit Admins, Logout, Quit Owner Panel, Killswitch\nEdit Owner Account, Manage Logs, Manage Autosaver, Quit Program");
                 switch (option.toLowerCase()) {
-                    case "add admins":
+                    case "add admins" ->
                         //Calls addAdmin method
                         adminLogic.addAdmins(Session.getAdmins());
-                        break;
-                    case "delete admins":
+                    case "delete admins" -> {
                         //Calls deleteAdmin method
                         Map<Integer, Admin> tempAdmins = adminLogic.deleteAdmins(Session.getAdmins());
                         if (tempAdmins != null) {
                             //Edits the admin list only if tempAdmins is not null
                             Session.setAdmins(tempAdmins);
                         }
-                        break;
-                    case "edit admins":
+                    }
+                    case "edit admins" ->
                         //Calls editAdmin method
                         new AdminMenus(adminLogic, new AccountLogic(projectUtils), projectUtils).editAdmin();
-                        break;
-                    case "logout":
+                    case "logout" -> {
                         //Logs out the user
                         System.out.println("Logging out...");
                         //Sets user role to none
                         Session.setRole(LoginEnums.NONE);
                         //Send a main menu message
                         return ControlFlow.MAIN_MENU;
-                    case "quit owner panel":
+                    }
+                    case "quit owner panel" -> {
                         //Send a back message
                         return ControlFlow.BACK;
-                    case "quit program":
+                    }
+                    case "quit program" -> {
                         System.out.println("Terminating program...");
                         //Send a quit message
                         return ControlFlow.QUIT;
-                    case "killswitch":
+                    }
+                    case "killswitch" -> {
                         //Assigns killswitch to true
                         if (new SaveData(projectUtils).killswitch()) {
                             Session.setKillswitch(true);
                             //Terminates the JVM
                             System.exit(0);
                         }
-                        break;
-                    case "edit owner account":
+                    }
+                    case "edit owner account" ->
                         //Calls editOwner method
                         editOwner();
-                        break;
-                    case "manage logs":
+                    case "manage logs" ->
                         //Calls manageLogs method
                         generalMenus.manageLogs();
-                        break;
-                    case "manage autosaver":
+                    case "manage autosaver" ->
+                        //Calls manageAutoSaver method
                         generalMenus.manageAutoSaver();
-                    default:
+                    default ->
                         //Invalid option
                         System.out.println("Invalid option. Please try again.");
                 }
