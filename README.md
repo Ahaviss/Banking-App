@@ -76,5 +76,9 @@ To change the owner password:
 * MAJOR: Replaced basic SHA-256 hashing with Argon2id hashing.
 * Fixed repetitive code in SaveData.java and the database package.
 * Using Mockito inside tests to avoid 1-2 sec hashing delay for Argon2id.
+* 
+### View the Database version of this project below
+
+[Database Banking-App](https://github.com/Ahaviss/Database-Banking-App)
 
 *Developed by Ahaviss - 2026*
